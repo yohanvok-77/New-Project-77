@@ -1,0 +1,1 @@
+ALTER TABLE "Signal" ADD COLUMN "order" INTEGER;
