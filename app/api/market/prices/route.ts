@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { normalizeStoredMarketSymbol } from "@/src/lib/market-data/symbol-map";
 
 export const runtime = "nodejs";
 
@@ -42,6 +41,10 @@ function toNumber(value: unknown) {
   }
 
   return null;
+}
+
+function normalizeStoredMarketSymbol(symbol: string) {
+  return symbol.trim().toUpperCase().replace(/^\./, "").replace(/CASH$/, "").replace(/[^A-Z0-9]/g, "");
 }
 
 function normalizeIncomingPrice(price: IncomingPrice): NormalizedIncomingPrice | null {
