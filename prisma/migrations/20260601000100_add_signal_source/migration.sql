@@ -1,1 +1,1 @@
-ALTER TABLE "Signal" ADD COLUMN "sourceName" TEXT DEFAULT 'E+M Range';
+ALTER TABLE "Signal" ADD COLUMN "sourceName" TEXT DEFAULT 'E+R Range';
