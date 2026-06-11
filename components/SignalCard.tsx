@@ -38,7 +38,7 @@ export function SignalCard({ signal, selected, highlighted = false, index, onSel
       {highlighted ? <span className="pointer-events-none absolute inset-0 bg-success/10" /> : null}
 
       <span className="relative mb-4 inline-flex rounded-full border border-blue/25 bg-blue/10 px-3 py-1 text-xs font-black text-blue">
-        {signal.sourceName || "E+M Range"}
+        {signal.sourceName || "E+R Range"}
       </span>
 
       <span className="relative flex items-start justify-between gap-4">
