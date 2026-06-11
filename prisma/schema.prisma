@@ -36,7 +36,7 @@ model Signal {
   id              String        @id @default(cuid())
   pair            String
   direction       SignalDirection
-  sourceName      String?       @default("E+M Range")
+  sourceName      String?       @default("E+R Range")
   order           Int?
   algorithmName   String?
   algorithmImageUrl String?
