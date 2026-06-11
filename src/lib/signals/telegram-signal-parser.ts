@@ -33,7 +33,7 @@ export type TelegramSignalParserOptions = {
 
 const defaultExpiresInHours = 24;
 const defaultWinrate = 70;
-const defaultSourceName = "E+M Range";
+const defaultSourceName = "E+R Range";
 const winrateByOpenedPositions: Record<number, number> = {
   1: 62,
   2: 64,
