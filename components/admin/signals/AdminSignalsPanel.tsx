@@ -339,7 +339,7 @@ export function AdminSignalsPanel({ signals, language }: { signals: AdminSignalR
               </div>
               <h2 className="mt-4 text-3xl font-black tracking-normal">{signal.pair}</h2>
               <p className="mt-2 inline-flex rounded-full border border-blue/25 bg-blue/10 px-3 py-1 text-xs font-black text-blue">
-                {signal.sourceName || "E+M Range"}
+                {signal.sourceName || "E+R Range"}
               </p>
               <p className="mt-1 text-sm font-semibold text-muted">
                 Order {signal.order ? `#${signal.order}` : "—"} · Winrate {signal.winrate}%
