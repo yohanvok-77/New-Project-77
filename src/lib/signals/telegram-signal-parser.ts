@@ -79,8 +79,12 @@ function getPipSize(symbol: string, entry: number) {
     return 0.01;
   }
 
-  if (normalized.includes("XAU") || normalized.includes("XAG")) {
-    return 0.1;
+  if (normalized.includes("XAU")) {
+    return 0.01;
+  }
+
+  if (normalized.includes("XAG")) {
+    return 0.001;
   }
 
   if (entry >= 1000) {
@@ -88,6 +92,20 @@ function getPipSize(symbol: string, entry: number) {
   }
 
   return 0.0001;
+}
+
+function normalizeStepPoints(symbol: string, stepPoints: number) {
+  const normalized = symbol.toUpperCase();
+
+  if (normalized.includes("XAU")) {
+    return stepPoints * 100;
+  }
+
+  if (normalized.includes("XAG")) {
+    return stepPoints * 10;
+  }
+
+  return stepPoints;
 }
 
 function getPriceDecimals(entry: number) {
@@ -164,7 +182,8 @@ export function calculateStopLoss(params: {
   openedPositions: number;
 }) {
   const remainingOrders = Math.max(params.gridOrders - params.openedPositions, 0);
-  const stopLossPoints = remainingOrders * params.stepPoints;
+  const normalizedStepPoints = normalizeStepPoints(params.symbol, params.stepPoints);
+  const stopLossPoints = remainingOrders * normalizedStepPoints;
   const pipSize = getPipSize(params.symbol, params.entry);
   const distance = stopLossPoints * pipSize;
   const decimals = getPriceDecimals(params.entry);
