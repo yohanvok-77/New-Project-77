@@ -17,21 +17,20 @@ const copy = {
     badge: "Система торговых идей на базе 77 алгоритмов",
     title: "Математика перевеса между рынками",
     lead:
-      "Торговые идеи появляются не случайно. Платформа наблюдает за 10 рынками, сравнивает силу одной торговой пары относительно другой и фиксирует моменты, когда статистический перевес становится максимальным.",
+      "Платформа наблюдает за рынками, сравнивает силу одной торговой пары относительно другой и фиксирует моменты, когда статистический перевес становится максимальным.",
     proof:
-      "На реальных счетах работают десятки алгоритмов, которые превращают повторяющиеся рыночные паттерны в аккуратные идеи с Entry, TP, SL и жизненным циклом сделки.",
+      "Это не просто поток сигналов. На реальных счетах работает сеть алгоритмов, которые превращают повторяющиеся рыночные паттерны в торговые идеи с Entry, TP, SL и понятным жизненным циклом.",
     primaryCta: "Открыть платформу",
-    secondaryCta: "Запросить доступ",
-    liveMap: "Live market map",
+    marketMap: "Карта рынков",
     algorithmEngine: "Algorithm engine",
-    imbalance: "Market imbalance",
-    signalReady: "Idea detected",
+    online: "Online",
     markets: "рынков под наблюдением",
     algorithms: "алгоритмов на реальных счетах",
     lifecycle: "статусов жизненного цикла идеи",
-    formulaTitle: "Не сигнал ради сигнала, а момент максимального перевеса",
+    imbalance: "Market imbalance",
+    formulaTitle: "Идея появляется в момент максимального перевеса",
     formulaText:
-      "Система ищет повторяемые ситуации, где поведение одной пары начинает статистически выделяться относительно другой. Когда условия сходятся, идея попадает в закрытый dashboard.",
+      "Система ищет повторяемые ситуации, где поведение одной пары статистически выделяется относительно другой. Когда условия сходятся, идея попадает в закрытый dashboard.",
     steps: [
       ["01", "Наблюдение", "Рынки анализируются постоянно: bid/ask, движение, активность и взаимный дисбаланс."],
       ["02", "Сравнение", "Алгоритмы проверяют, где одна торговая пара получает преимущество относительно другой."],
@@ -40,7 +39,7 @@ const copy = {
     ],
     labTitle: "77 алгоритмов работают как исследовательская лаборатория",
     labText:
-      "Каждый алгоритм тестирует свой участок рынка. Вместе они дают систему наблюдений, где важны не эмоции, а повторяемость, вероятность и дисциплина исполнения.",
+      "Каждый алгоритм тестирует свой участок рынка. Вместе они дают систему наблюдений, где важны повторяемость, вероятность и дисциплина исполнения.",
     cards: [
       ["Entry", "точка включения идеи"],
       ["Take Profit", "цель движения"],
@@ -58,21 +57,20 @@ const copy = {
     badge: "Trading idea system powered by 77 algorithms",
     title: "Mathematics of market imbalance",
     lead:
-      "Trading ideas do not appear randomly. The platform observes 10 markets, compares relative strength between instruments, and captures moments when statistical imbalance reaches its strongest point.",
+      "The platform observes markets, compares relative strength between instruments, and captures moments when statistical imbalance reaches its strongest point.",
     proof:
-      "Dozens of algorithms run on real accounts, turning recurring market patterns into structured ideas with Entry, TP, SL, and a full signal lifecycle.",
+      "This is not just a stream of signals. A network of algorithms runs on real accounts and turns recurring market patterns into structured ideas with Entry, TP, SL, and a clear lifecycle.",
     primaryCta: "Open platform",
-    secondaryCta: "Request access",
-    liveMap: "Live market map",
+    marketMap: "Market map",
     algorithmEngine: "Algorithm engine",
-    imbalance: "Market imbalance",
-    signalReady: "Idea detected",
+    online: "Online",
     markets: "markets monitored",
     algorithms: "algorithms on real accounts",
     lifecycle: "signal lifecycle states",
-    formulaTitle: "Not a signal for the sake of a signal, but the moment of maximum imbalance",
+    imbalance: "Market imbalance",
+    formulaTitle: "An idea appears at the moment of maximum imbalance",
     formulaText:
-      "The system searches for repeatable situations where one instrument begins to statistically stand out against another. When the conditions align, the idea enters the private dashboard.",
+      "The system searches for repeatable situations where one instrument statistically stands out against another. When the conditions align, the idea enters the private dashboard.",
     steps: [
       ["01", "Observation", "Markets are monitored continuously: bid/ask, movement, activity, and relative imbalance."],
       ["02", "Comparison", "Algorithms check where one trading pair gains an edge relative to another."],
@@ -91,62 +89,83 @@ const copy = {
   },
 } as const;
 
-function MarketField({ language }: { language: keyof typeof copy }) {
+const outerPairs = ["AUDCAD", "AUDUSD", "CADJPY", "CHFJPY", "EURAUD", "EURCAD", "EURCHF", "EURGBP", "EURJPY", "EURUSD"];
+const innerPairs = ["GBPCHF", "GBPJPY", "GBPNZD", "GBPUSD", "XAGUSD", "XAUUSD", "NZDUSD", "NZDCAD", "US500"];
+const bars = [34, 58, 42, 76, 64, 92, 68, 104, 84, 118, 96, 132];
+
+function MarketVisual({ language }: { language: keyof typeof copy }) {
   const t = copy[language];
-  const bars = [34, 58, 42, 76, 64, 92, 68, 104, 84, 118, 96, 132];
 
   return (
-    <div className="landing-market-scene pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="landing-grid absolute inset-0 opacity-45" />
-      <div className="absolute left-[7%] top-[19%] hidden w-[34rem] rounded-[2rem] border border-white/10 bg-[#080B12]/50 p-5 shadow-glass backdrop-blur-xl lg:block">
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-black uppercase tracking-normal text-muted">{t.liveMap}</p>
-            <h2 className="mt-1 text-2xl font-black text-text">XAU/USD · GBP/NZD · NZD/CAD</h2>
+    <div className="landing-market-scene pointer-events-none relative mx-auto w-full max-w-[650px] lg:ml-auto">
+      <div className="absolute -inset-8 rounded-full bg-blue/10 blur-3xl" />
+      <div className="glass-panel relative overflow-hidden rounded-[2rem] p-4 sm:p-5">
+        <div className="landing-grid absolute inset-0 opacity-35" />
+        <div className="relative z-10 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-black uppercase tracking-normal text-muted">{t.marketMap}</p>
+            <h2 className="mt-1 truncate text-xl font-black text-text sm:text-2xl">XAU/USD · GBP/NZD · NZD/CAD</h2>
           </div>
-          <span className="rounded-full border border-success/30 bg-success/15 px-3 py-1 text-xs font-black text-success">
-            Online
+          <span className="shrink-0 rounded-full border border-success/30 bg-success/15 px-3 py-1 text-xs font-black text-success">
+            {t.online}
           </span>
         </div>
-        <div className="relative h-56 overflow-hidden rounded-3xl border border-white/10 bg-panel/55">
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:44px_36px]" />
-          <div className="absolute inset-x-6 bottom-5 flex h-40 items-end justify-between gap-2">
-            {bars.map((height, index) => (
-              <span
-                key={`${height}-${index}`}
-                className={[
-                  "landing-bar block w-5 rounded-t-lg",
-                  index % 5 === 0 ? "bg-danger" : index % 3 === 0 ? "bg-gold" : "bg-success",
-                ].join(" ")}
-                style={{ height, animationDelay: `${index * 120}ms` }}
-              />
-            ))}
-          </div>
-          <div className="landing-price-line absolute left-7 top-28 h-1 w-[86%] rounded-full bg-gradient-to-r from-blue via-success to-gold" />
-          <span className="absolute left-[58%] top-[42%] h-4 w-4 rounded-full bg-blue shadow-[0_0_24px_rgba(59,130,246,0.8)]" />
-          <span className="absolute right-[16%] top-[27%] h-4 w-4 rounded-full bg-success shadow-[0_0_24px_rgba(34,197,94,0.8)]" />
-        </div>
-      </div>
 
-      <div className="landing-orbit absolute right-[5%] top-[24%] hidden h-[34rem] w-[34rem] rounded-full border border-white/10 lg:block">
-        <div className="absolute inset-16 rounded-full border border-blue/25" />
-        <div className="absolute inset-32 rounded-full border border-gold/20" />
-        {["EURUSD", "XAUUSD", "GBPJPY", "NZDCAD", "XAGUSD", "US500"].map((pair, index) => (
-          <span
-            key={pair}
-            className="landing-node absolute rounded-full border border-white/12 bg-white/[0.08] px-3 py-1 text-xs font-black text-text backdrop-blur-xl"
-            style={{
-              left: `${50 + Math.cos((index / 6) * Math.PI * 2) * 39}%`,
-              top: `${50 + Math.sin((index / 6) * Math.PI * 2) * 39}%`,
-              animationDelay: `${index * 180}ms`,
-            }}
-          >
-            {pair}
-          </span>
-        ))}
-        <div className="absolute left-1/2 top-1/2 w-48 -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-success/25 bg-success/10 p-5 text-center backdrop-blur-xl">
-          <p className="text-xs font-black uppercase tracking-normal text-success">{t.algorithmEngine}</p>
-          <strong className="mt-2 block text-5xl font-black text-text">77</strong>
+        <div className="relative z-10 mt-5 grid gap-4 xl:grid-cols-[0.88fr_1.12fr]">
+          <div className="relative h-56 overflow-hidden rounded-3xl border border-white/10 bg-[#080B12]/72">
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:44px_36px]" />
+            <div className="absolute inset-x-5 bottom-5 flex h-40 items-end justify-between gap-1.5">
+              {bars.map((height, index) => (
+                <span
+                  key={`${height}-${index}`}
+                  className={[
+                    "landing-bar block w-4 rounded-t-lg",
+                    index % 5 === 0 ? "bg-danger" : index % 3 === 0 ? "bg-gold" : "bg-success",
+                  ].join(" ")}
+                  style={{ height, animationDelay: `${index * 120}ms` }}
+                />
+              ))}
+            </div>
+            <div className="landing-price-line absolute left-6 top-28 h-1 w-[84%] rounded-full bg-gradient-to-r from-blue via-success to-gold" />
+            <span className="absolute left-[58%] top-[42%] h-4 w-4 rounded-full bg-blue shadow-[0_0_24px_rgba(59,130,246,0.8)]" />
+            <span className="absolute right-[16%] top-[27%] h-4 w-4 rounded-full bg-success shadow-[0_0_24px_rgba(34,197,94,0.8)]" />
+          </div>
+
+          <div className="landing-orbit relative mx-auto aspect-square w-full max-w-[22rem] rounded-full border border-white/10 bg-[#080B12]/48">
+            <div className="absolute inset-5 rounded-full border border-white/10" />
+            <div className="absolute inset-14 rounded-full border border-blue/25" />
+            <div className="absolute inset-[6.5rem] rounded-full border border-gold/20" />
+            {outerPairs.map((pair, index) => (
+              <span
+                key={pair}
+                className="landing-node absolute rounded-full border border-white/12 bg-white/[0.09] px-2.5 py-1 text-[10px] font-black text-text backdrop-blur-xl"
+                style={{
+                  left: `${50 + Math.cos((index / outerPairs.length) * Math.PI * 2) * 45}%`,
+                  top: `${50 + Math.sin((index / outerPairs.length) * Math.PI * 2) * 45}%`,
+                  animationDelay: `${index * 110}ms`,
+                }}
+              >
+                {pair}
+              </span>
+            ))}
+            {innerPairs.map((pair, index) => (
+              <span
+                key={pair}
+                className="landing-node absolute rounded-full border border-blue/20 bg-blue/[0.08] px-2.5 py-1 text-[10px] font-black text-blue backdrop-blur-xl"
+                style={{
+                  left: `${50 + Math.cos((index / innerPairs.length) * Math.PI * 2 + 0.2) * 30}%`,
+                  top: `${50 + Math.sin((index / innerPairs.length) * Math.PI * 2 + 0.2) * 30}%`,
+                  animationDelay: `${index * 130}ms`,
+                }}
+              >
+                {pair}
+              </span>
+            ))}
+            <div className="absolute left-1/2 top-1/2 w-36 -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-success/25 bg-success/10 p-4 text-center backdrop-blur-xl">
+              <p className="text-[10px] font-black uppercase tracking-normal text-success">{t.algorithmEngine}</p>
+              <strong className="mt-1 block text-4xl font-black text-text">77</strong>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -165,7 +184,7 @@ export default async function LandingPage() {
     <main className="relative min-h-screen overflow-hidden bg-base text-text">
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(59,130,246,0.2),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(245,158,11,0.16),transparent_26%),radial-gradient(circle_at_50%_94%,rgba(34,197,94,0.12),transparent_36%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,11,18,0.88),rgba(8,11,18,0.52),rgba(8,11,18,0.88))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,11,18,0.9),rgba(8,11,18,0.55),rgba(8,11,18,0.9))]" />
       </div>
 
       <header className="fixed inset-x-0 top-0 z-30 px-4 py-4 sm:px-6 lg:px-8">
@@ -195,14 +214,14 @@ export default async function LandingPage() {
       </header>
 
       <section className="relative isolate min-h-screen overflow-hidden px-4 pb-20 pt-32 sm:px-6 lg:px-8">
-        <MarketField language={language} />
-        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-8rem)] max-w-7xl items-center">
-          <div className="max-w-4xl">
+        <div className="landing-grid absolute inset-0 opacity-35" />
+        <div className="relative z-10 mx-auto grid min-h-[calc(100vh-8rem)] max-w-7xl items-center gap-10 lg:grid-cols-[0.92fr_1.08fr]">
+          <div className="max-w-3xl">
             <div className="landing-fade-up inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-sm font-black text-blue backdrop-blur-xl">
               <span className="h-2 w-2 rounded-full bg-success shadow-[0_0_16px_rgba(34,197,94,0.8)]" />
               {t.badge}
             </div>
-            <h1 className="landing-fade-up mt-7 max-w-5xl text-5xl font-black leading-[0.95] tracking-normal text-text sm:text-7xl lg:text-8xl">
+            <h1 className="landing-fade-up mt-7 max-w-4xl text-5xl font-black leading-[0.95] tracking-normal text-text sm:text-6xl xl:text-7xl">
               {t.title}
             </h1>
             <p className="landing-fade-up mt-7 max-w-3xl text-lg font-semibold leading-8 text-muted sm:text-xl">
@@ -226,6 +245,8 @@ export default async function LandingPage() {
               </Link>
             </div>
           </div>
+
+          <MarketVisual language={language} />
         </div>
       </section>
 
@@ -278,7 +299,7 @@ export default async function LandingPage() {
         <div className="glass-panel mx-auto max-w-7xl overflow-hidden rounded-[2rem] p-6 sm:p-8">
           <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
             <div>
-              <p className="text-sm font-black uppercase tracking-normal text-blue">{t.signalReady}</p>
+              <p className="text-sm font-black uppercase tracking-normal text-blue">Idea detected</p>
               <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal sm:text-5xl">{t.labTitle}</h2>
               <p className="mt-5 text-lg leading-8 text-muted">{t.labText}</p>
             </div>
