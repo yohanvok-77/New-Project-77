@@ -2,34 +2,170 @@ import Link from "next/link";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getCurrentUser } from "@/lib/auth/currentUser";
 import { hasActiveAccess } from "@/lib/auth/access";
-import { getDictionary } from "@/lib/i18n";
 import { getCurrentLanguage } from "@/lib/i18nServer";
 
 export const dynamic = "force-dynamic";
 
+const copy = {
+  ru: {
+    brand: "Торговые идеи",
+    logo: "ТИ",
+    login: "Войти",
+    register: "Регистрация",
+    enterPlatform: "Войти в платформу",
+    createAccount: "Создать аккаунт",
+    badge: "Система торговых идей на базе 77 алгоритмов",
+    title: "Математика перевеса между рынками",
+    lead:
+      "Торговые идеи появляются не случайно. Платформа наблюдает за 10 рынками, сравнивает силу одной торговой пары относительно другой и фиксирует моменты, когда статистический перевес становится максимальным.",
+    proof:
+      "На реальных счетах работают десятки алгоритмов, которые превращают повторяющиеся рыночные паттерны в аккуратные идеи с Entry, TP, SL и жизненным циклом сделки.",
+    primaryCta: "Открыть платформу",
+    secondaryCta: "Запросить доступ",
+    liveMap: "Live market map",
+    algorithmEngine: "Algorithm engine",
+    imbalance: "Market imbalance",
+    signalReady: "Idea detected",
+    markets: "рынков под наблюдением",
+    algorithms: "алгоритмов на реальных счетах",
+    lifecycle: "статусов жизненного цикла идеи",
+    formulaTitle: "Не сигнал ради сигнала, а момент максимального перевеса",
+    formulaText:
+      "Система ищет повторяемые ситуации, где поведение одной пары начинает статистически выделяться относительно другой. Когда условия сходятся, идея попадает в закрытый dashboard.",
+    steps: [
+      ["01", "Наблюдение", "Рынки анализируются постоянно: bid/ask, движение, активность и взаимный дисбаланс."],
+      ["02", "Сравнение", "Алгоритмы проверяют, где одна торговая пара получает преимущество относительно другой."],
+      ["03", "Фильтрация", "Идея появляется только когда перевес достигает заданного математического порога."],
+      ["04", "Сопровождение", "Платформа отслеживает Entry, TP, SL, статус и историю события автоматически."],
+    ],
+    labTitle: "77 алгоритмов работают как исследовательская лаборатория",
+    labText:
+      "Каждый алгоритм тестирует свой участок рынка. Вместе они дают систему наблюдений, где важны не эмоции, а повторяемость, вероятность и дисциплина исполнения.",
+    cards: [
+      ["Entry", "точка включения идеи"],
+      ["Take Profit", "цель движения"],
+      ["Stop Loss", "контроль сценария"],
+    ],
+    disclaimer: "Информация представлена исключительно в образовательных целях и не является финансовой рекомендацией.",
+  },
+  en: {
+    brand: "Trading Ideas",
+    logo: "TI",
+    login: "Log in",
+    register: "Register",
+    enterPlatform: "Enter platform",
+    createAccount: "Create account",
+    badge: "Trading idea system powered by 77 algorithms",
+    title: "Mathematics of market imbalance",
+    lead:
+      "Trading ideas do not appear randomly. The platform observes 10 markets, compares relative strength between instruments, and captures moments when statistical imbalance reaches its strongest point.",
+    proof:
+      "Dozens of algorithms run on real accounts, turning recurring market patterns into structured ideas with Entry, TP, SL, and a full signal lifecycle.",
+    primaryCta: "Open platform",
+    secondaryCta: "Request access",
+    liveMap: "Live market map",
+    algorithmEngine: "Algorithm engine",
+    imbalance: "Market imbalance",
+    signalReady: "Idea detected",
+    markets: "markets monitored",
+    algorithms: "algorithms on real accounts",
+    lifecycle: "signal lifecycle states",
+    formulaTitle: "Not a signal for the sake of a signal, but the moment of maximum imbalance",
+    formulaText:
+      "The system searches for repeatable situations where one instrument begins to statistically stand out against another. When the conditions align, the idea enters the private dashboard.",
+    steps: [
+      ["01", "Observation", "Markets are monitored continuously: bid/ask, movement, activity, and relative imbalance."],
+      ["02", "Comparison", "Algorithms check where one trading pair gains an edge relative to another."],
+      ["03", "Filtering", "An idea appears only when the imbalance reaches a defined mathematical threshold."],
+      ["04", "Lifecycle", "The platform tracks Entry, TP, SL, status, and event history automatically."],
+    ],
+    labTitle: "77 algorithms working like a research lab",
+    labText:
+      "Each algorithm tests its own market segment. Together they create an observation system built on repeatability, probability, and execution discipline.",
+    cards: [
+      ["Entry", "idea activation level"],
+      ["Take Profit", "target scenario"],
+      ["Stop Loss", "scenario control"],
+    ],
+    disclaimer: "The information is provided for educational purposes only and is not financial advice.",
+  },
+} as const;
+
+function MarketField({ language }: { language: keyof typeof copy }) {
+  const t = copy[language];
+  const bars = [34, 58, 42, 76, 64, 92, 68, 104, 84, 118, 96, 132];
+
+  return (
+    <div className="landing-market-scene pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="landing-grid absolute inset-0 opacity-45" />
+      <div className="absolute left-[7%] top-[19%] hidden w-[34rem] rounded-[2rem] border border-white/10 bg-[#080B12]/50 p-5 shadow-glass backdrop-blur-xl lg:block">
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-normal text-muted">{t.liveMap}</p>
+            <h2 className="mt-1 text-2xl font-black text-text">XAU/USD · GBP/NZD · NZD/CAD</h2>
+          </div>
+          <span className="rounded-full border border-success/30 bg-success/15 px-3 py-1 text-xs font-black text-success">
+            Online
+          </span>
+        </div>
+        <div className="relative h-56 overflow-hidden rounded-3xl border border-white/10 bg-panel/55">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px)] bg-[size:44px_36px]" />
+          <div className="absolute inset-x-6 bottom-5 flex h-40 items-end justify-between gap-2">
+            {bars.map((height, index) => (
+              <span
+                key={`${height}-${index}`}
+                className={[
+                  "landing-bar block w-5 rounded-t-lg",
+                  index % 5 === 0 ? "bg-danger" : index % 3 === 0 ? "bg-gold" : "bg-success",
+                ].join(" ")}
+                style={{ height, animationDelay: `${index * 120}ms` }}
+              />
+            ))}
+          </div>
+          <div className="landing-price-line absolute left-7 top-28 h-1 w-[86%] rounded-full bg-gradient-to-r from-blue via-success to-gold" />
+          <span className="absolute left-[58%] top-[42%] h-4 w-4 rounded-full bg-blue shadow-[0_0_24px_rgba(59,130,246,0.8)]" />
+          <span className="absolute right-[16%] top-[27%] h-4 w-4 rounded-full bg-success shadow-[0_0_24px_rgba(34,197,94,0.8)]" />
+        </div>
+      </div>
+
+      <div className="landing-orbit absolute right-[5%] top-[24%] hidden h-[34rem] w-[34rem] rounded-full border border-white/10 lg:block">
+        <div className="absolute inset-16 rounded-full border border-blue/25" />
+        <div className="absolute inset-32 rounded-full border border-gold/20" />
+        {["EURUSD", "XAUUSD", "GBPJPY", "NZDCAD", "XAGUSD", "US500"].map((pair, index) => (
+          <span
+            key={pair}
+            className="landing-node absolute rounded-full border border-white/12 bg-white/[0.08] px-3 py-1 text-xs font-black text-text backdrop-blur-xl"
+            style={{
+              left: `${50 + Math.cos((index / 6) * Math.PI * 2) * 39}%`,
+              top: `${50 + Math.sin((index / 6) * Math.PI * 2) * 39}%`,
+              animationDelay: `${index * 180}ms`,
+            }}
+          >
+            {pair}
+          </span>
+        ))}
+        <div className="absolute left-1/2 top-1/2 w-48 -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-success/25 bg-success/10 p-5 text-center backdrop-blur-xl">
+          <p className="text-xs font-black uppercase tracking-normal text-success">{t.algorithmEngine}</p>
+          <strong className="mt-2 block text-5xl font-black text-text">77</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default async function LandingPage() {
   const language = getCurrentLanguage();
-  const t = getDictionary(language);
+  const t = copy[language];
   const user = await getCurrentUser();
   const canOpenPlatform = hasActiveAccess(user);
-  const primaryHref = user ? "/signals" : "/register";
+  const primaryHref = user ? (canOpenPlatform ? "/signals" : "/no-access") : "/register";
   const primaryLabel = user ? t.enterPlatform : t.createAccount;
-  const productStats = [
-    ["24/7", t.marketMonitoring],
-    ["6", t.ideaStatuses],
-    ["1", t.closedPlatform],
-  ];
-  const features = [
-    { title: t.featureReadableTitle, text: t.featureReadableText },
-    { title: t.featureAccessTitle, text: t.featureAccessText },
-    { title: t.featureLifecycleTitle, text: t.featureLifecycleText },
-  ];
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-base text-text">
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_10%,rgba(59,130,246,0.22),transparent_30%),radial-gradient(circle_at_84%_18%,rgba(245,158,11,0.16),transparent_28%),radial-gradient(circle_at_52%_96%,rgba(34,197,94,0.13),transparent_34%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:72px_72px] opacity-35" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(59,130,246,0.2),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(245,158,11,0.16),transparent_26%),radial-gradient(circle_at_50%_94%,rgba(34,197,94,0.12),transparent_36%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,11,18,0.88),rgba(8,11,18,0.52),rgba(8,11,18,0.88))]" />
       </div>
 
       <header className="fixed inset-x-0 top-0 z-30 px-4 py-4 sm:px-6 lg:px-8">
@@ -49,7 +185,7 @@ export default async function LandingPage() {
             {user ? null : (
               <Link
                 href="/register"
-                className="rounded-full bg-blue px-4 py-2.5 text-sm font-black text-white shadow-glow transition hover:scale-[1.02]"
+                className="hidden rounded-full bg-blue px-4 py-2.5 text-sm font-black text-white shadow-glow transition hover:scale-[1.02] sm:inline-flex"
               >
                 {t.register}
               </Link>
@@ -58,91 +194,115 @@ export default async function LandingPage() {
         </nav>
       </header>
 
-      <section className="relative z-10 mx-auto flex min-h-[92vh] w-full max-w-7xl flex-col justify-center px-4 pb-14 pt-32 sm:px-6 lg:px-8">
-        <div className="max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-sm font-bold text-blue backdrop-blur-xl">
-            <span className="h-2 w-2 rounded-full bg-success shadow-[0_0_16px_rgba(34,197,94,0.8)]" />
-            {t.premiumBadge}
-          </div>
-          <h1 className="max-w-4xl text-5xl font-black leading-[0.96] tracking-normal sm:text-7xl lg:text-8xl">
-            {t.landingTitle}
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg font-medium leading-8 text-muted sm:text-xl">
-            {t.landingText}
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href={primaryHref}
-              className="rounded-2xl bg-blue px-6 py-4 text-center font-black text-white shadow-glow transition hover:scale-[1.01]"
-            >
-              {primaryLabel}
-            </Link>
-            <Link
-              href={canOpenPlatform ? "/signals" : user ? "/no-access" : "/login"}
-              className="rounded-2xl border border-white/12 bg-white/10 px-6 py-4 text-center font-black text-text backdrop-blur-xl transition hover:bg-white/15"
-            >
-              {t.enterPlatform}
-            </Link>
-          </div>
-        </div>
-
-        <div className="pointer-events-none mt-12 grid gap-4 lg:absolute lg:bottom-12 lg:right-8 lg:mt-0 lg:w-[520px]">
-          <div className="glass-panel rotate-0 rounded-[2rem] p-4 shadow-glass lg:rotate-[-2deg]">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-muted">{t.liveIdea}</p>
-                <h2 className="text-3xl font-black">GBP/USD</h2>
-              </div>
-              <span className="rounded-full border border-success/35 bg-success/15 px-3 py-1 text-xs font-black text-success">
-                {t.closedTp}
-              </span>
+      <section className="relative isolate min-h-screen overflow-hidden px-4 pb-20 pt-32 sm:px-6 lg:px-8">
+        <MarketField language={language} />
+        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-8rem)] max-w-7xl items-center">
+          <div className="max-w-4xl">
+            <div className="landing-fade-up inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-sm font-black text-blue backdrop-blur-xl">
+              <span className="h-2 w-2 rounded-full bg-success shadow-[0_0_16px_rgba(34,197,94,0.8)]" />
+              {t.badge}
             </div>
-            <div className="h-44 overflow-hidden rounded-3xl border border-white/10 bg-[#080B12]/80 p-4">
-              <svg className="h-full w-full" viewBox="0 0 360 180" preserveAspectRatio="none">
-                {[34, 70, 106, 142].map((y) => (
-                  <line key={y} x1="0" x2="360" y1={y} y2={y} stroke="rgba(255,255,255,0.08)" />
-                ))}
-                <path
-                  d="M8 142 C48 120 72 134 106 98 C142 58 172 86 210 52 C250 18 292 38 352 22"
-                  fill="none"
-                  stroke="#22C55E"
-                  strokeLinecap="round"
-                  strokeWidth="5"
-                />
-                <circle cx="132" cy="78" r="7" fill="#3B82F6" />
-                <circle cx="300" cy="34" r="7" fill="#22C55E" />
-                <circle cx="70" cy="132" r="7" fill="#EF4444" />
-              </svg>
+            <h1 className="landing-fade-up mt-7 max-w-5xl text-5xl font-black leading-[0.95] tracking-normal text-text sm:text-7xl lg:text-8xl">
+              {t.title}
+            </h1>
+            <p className="landing-fade-up mt-7 max-w-3xl text-lg font-semibold leading-8 text-muted sm:text-xl">
+              {t.lead}
+            </p>
+            <p className="landing-fade-up mt-4 max-w-3xl text-base font-medium leading-7 text-white/72 sm:text-lg">
+              {t.proof}
+            </p>
+            <div className="landing-fade-up mt-9 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href={primaryHref}
+                className="rounded-2xl bg-blue px-6 py-4 text-center font-black text-white shadow-glow transition hover:scale-[1.01]"
+              >
+                {primaryLabel}
+              </Link>
+              <Link
+                href={user ? "/signals" : "/login"}
+                className="rounded-2xl border border-white/12 bg-white/10 px-6 py-4 text-center font-black text-text backdrop-blur-xl transition hover:bg-white/15"
+              >
+                {user ? t.primaryCta : t.enterPlatform}
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="relative z-10 border-t border-white/10 bg-white/[0.025] px-4 py-14 sm:px-6 lg:px-8">
+      <section className="relative z-10 border-y border-white/10 bg-white/[0.025] px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
-          {productStats.map(([value, label]) => (
-            <article key={label} className="glass-panel rounded-3xl p-5">
-              <strong className="text-4xl font-black text-text">{value}</strong>
-              <p className="mt-2 text-sm font-semibold text-muted">{label}</p>
+          {[
+            ["10", t.markets, "text-blue"],
+            ["77", t.algorithms, "text-success"],
+            ["6", t.lifecycle, "text-gold"],
+          ].map(([value, label, color], index) => (
+            <article key={label} className="glass-panel landing-fade-up rounded-3xl p-6" style={{ animationDelay: `${index * 110}ms` }}>
+              <strong className={`text-5xl font-black ${color}`}>{value}</strong>
+              <p className="mt-3 text-sm font-bold text-muted">{label}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="relative z-10 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="max-w-3xl text-3xl font-black tracking-normal sm:text-5xl">
-            {t.landingSectionTitle}
-          </h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {features.map((feature) => (
-              <article key={feature.title} className="glass-panel rounded-3xl p-6">
-                <h3 className="text-xl font-black">{feature.title}</h3>
-                <p className="mt-3 leading-7 text-muted">{feature.text}</p>
+      <section className="relative z-10 px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <div className="lg:sticky lg:top-32">
+            <p className="text-sm font-black uppercase tracking-normal text-success">{t.imbalance}</p>
+            <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal sm:text-5xl">{t.formulaTitle}</h2>
+            <p className="mt-5 text-lg font-medium leading-8 text-muted">{t.formulaText}</p>
+          </div>
+
+          <div className="grid gap-4">
+            {t.steps.map(([number, title, text], index) => (
+              <article
+                key={number}
+                className="glass-panel landing-fade-up group rounded-3xl p-5 transition duration-300 hover:-translate-y-1 hover:border-white/25"
+                style={{ animationDelay: `${index * 120}ms` }}
+              >
+                <div className="flex gap-4">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-blue/25 bg-blue/10 text-sm font-black text-blue">
+                    {number}
+                  </span>
+                  <div>
+                    <h3 className="text-xl font-black">{title}</h3>
+                    <p className="mt-2 leading-7 text-muted">{text}</p>
+                  </div>
+                </div>
               </article>
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="relative z-10 px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="glass-panel mx-auto max-w-7xl overflow-hidden rounded-[2rem] p-6 sm:p-8">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
+            <div>
+              <p className="text-sm font-black uppercase tracking-normal text-blue">{t.signalReady}</p>
+              <h2 className="mt-4 text-3xl font-black leading-tight tracking-normal sm:text-5xl">{t.labTitle}</h2>
+              <p className="mt-5 text-lg leading-8 text-muted">{t.labText}</p>
+            </div>
+            <div className="grid gap-3">
+              {t.cards.map(([title, text], index) => (
+                <div
+                  key={title}
+                  className="landing-fade-up rounded-3xl border border-white/10 bg-white/[0.055] p-5"
+                  style={{ animationDelay: `${index * 120}ms` }}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <span className={["text-lg font-black", index === 0 ? "text-blue" : index === 1 ? "text-success" : "text-danger"].join(" ")}>
+                      {title}
+                    </span>
+                    <span className="h-2 w-24 rounded-full bg-gradient-to-r from-blue via-success to-gold" />
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-muted">{text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <p className="mx-auto mt-8 max-w-3xl text-center text-sm leading-6 text-muted">{t.disclaimer}</p>
       </section>
     </main>
   );
