@@ -37,6 +37,7 @@ export type AdminSignalRow = {
   activatedAt: string | null;
   closedAt: string | null;
   closeReason: string | null;
+  excludedFromStats: boolean;
   events: AdminSignalEvent[];
 };
 
@@ -336,6 +337,11 @@ export function AdminSignalsPanel({ signals, language }: { signals: AdminSignalR
                 <span className={["rounded-full border px-3 py-1 text-xs font-black", statusStyles[signal.status]].join(" ")}>
                   {statusLabels[language][signal.status]}
                 </span>
+                {signal.excludedFromStats ? (
+                  <span className="rounded-full border border-gold/35 bg-gold/15 px-3 py-1 text-xs font-black text-gold">
+                    {language === "ru" ? "Не в статистике" : "Excluded from stats"}
+                  </span>
+                ) : null}
               </div>
               <h2 className="mt-4 text-3xl font-black tracking-normal">{signal.pair}</h2>
               <p className="mt-2 inline-flex rounded-full border border-blue/25 bg-blue/10 px-3 py-1 text-xs font-black text-blue">
@@ -385,6 +391,19 @@ export function AdminSignalsPanel({ signals, language }: { signals: AdminSignalR
                   <ActionButton signalId={signal.id} action="cancel" label={t.cancel} />
                   <ActionButton signalId={signal.id} action="pending" label={t.pending} />
                   <ActionButton signalId={signal.id} action="active" label={t.active} />
+                  <ActionButton
+                    signalId={signal.id}
+                    action={signal.excludedFromStats ? "include_stats" : "exclude_stats"}
+                    label={
+                      signal.excludedFromStats
+                        ? language === "ru"
+                          ? "Вернуть в статистику"
+                          : "Include in stats"
+                        : language === "ru"
+                          ? "Исключить из статистики"
+                          : "Exclude from stats"
+                    }
+                  />
                 </div>
               </div>
 
