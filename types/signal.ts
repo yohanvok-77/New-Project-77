@@ -30,6 +30,7 @@ export interface Signal {
   closeReason: SignalCloseReason;
   closePrice: string | null;
   lastPrice: string | null;
+  excludedFromStats?: boolean;
 }
 
 export type SignalFilter = "all" | "actual" | "closed" | "inactive" | SignalDirection;
