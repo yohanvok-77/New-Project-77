@@ -10,10 +10,11 @@ interface StatsCardsProps {
 
 export function StatsCards({ signals, language = "ru" }: StatsCardsProps) {
   const t = getDictionary(language);
-  const active = signals.filter((signal) => isSignalActual(signal)).length;
-  const averageWinrate = calculateWinrate(signals);
-  const closedProfit = signals.filter((signal) => signal.status === "closed_tp").length;
-  const closedLoss = signals.filter((signal) => signal.status === "closed_sl").length;
+  const statsSignals = signals.filter((signal) => !signal.excludedFromStats);
+  const active = statsSignals.filter((signal) => isSignalActual(signal)).length;
+  const averageWinrate = calculateWinrate(statsSignals);
+  const closedProfit = statsSignals.filter((signal) => signal.status === "closed_tp").length;
+  const closedLoss = statsSignals.filter((signal) => signal.status === "closed_sl").length;
 
   const stats = [
     {
