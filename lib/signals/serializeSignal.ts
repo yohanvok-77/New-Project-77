@@ -35,5 +35,6 @@ export function serializeSignal(signal: PrismaSignal, language: Language): Signa
         : null,
     closePrice: signal.closePrice?.toString() || null,
     lastPrice: signal.lastMarketPrice?.toString() || null,
+    excludedFromStats: signal.excludedFromStats,
   };
 }
