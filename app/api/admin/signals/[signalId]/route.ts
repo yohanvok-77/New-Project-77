@@ -91,6 +91,28 @@ function getManualUpdate(signal: Awaited<ReturnType<typeof prisma.signal.findUni
     };
   }
 
+  if (action === "exclude_stats") {
+    return {
+      eventType: "MANUAL_UPDATE" as SignalEventType,
+      message: "Signal was excluded from dashboard statistics.",
+      price: signal.lastMarketPrice,
+      data: {
+        excludedFromStats: true,
+      } satisfies Prisma.SignalUpdateInput,
+    };
+  }
+
+  if (action === "include_stats") {
+    return {
+      eventType: "MANUAL_UPDATE" as SignalEventType,
+      message: "Signal was included in dashboard statistics.",
+      price: signal.lastMarketPrice,
+      data: {
+        excludedFromStats: false,
+      } satisfies Prisma.SignalUpdateInput,
+    };
+  }
+
   return null;
 }
 
