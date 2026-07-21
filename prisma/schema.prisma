@@ -56,6 +56,7 @@ model Signal {
   entryHitPrice   Decimal?
   closePrice      Decimal?
   closeReason     String?
+  excludedFromStats Boolean      @default(false)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   events          SignalEvent[]
@@ -79,6 +80,20 @@ model SignalEvent {
   @@index([signalId])
   @@index([type])
   @@index([createdAt])
+}
+
+model MarketQuote {
+  id        String   @id @default(cuid())
+  symbol    String   @unique
+  bid       Decimal
+  ask       Decimal
+  mid       Decimal
+  source    String   @default("roboforex")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([symbol])
+  @@index([updatedAt])
 }
 
 enum UserRole {
