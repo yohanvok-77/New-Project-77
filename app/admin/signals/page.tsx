@@ -58,6 +58,7 @@ export default async function AdminSignalsPage() {
     activatedAt: signal.activatedAt?.toISOString() || null,
     closedAt: signal.closedAt?.toISOString() || null,
     closeReason: signal.closeReason,
+    excludedFromStats: signal.excludedFromStats,
     events: signal.events.map((event) => ({
       id: event.id,
       type: event.type,
