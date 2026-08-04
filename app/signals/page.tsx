@@ -5,9 +5,10 @@ import { hasActiveAccess } from "@/lib/auth/access";
 import { getCurrentLanguage } from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { serializeSignal } from "@/lib/signals/serializeSignal";
-import { hiddenSignalSourceNames } from "@/lib/signals/sourceVisibility";
 
 export const dynamic = "force-dynamic";
+
+const hiddenSignalSourceNames = ["E+M Range"];
 
 export default async function SignalsPage() {
   const language = getCurrentLanguage();
