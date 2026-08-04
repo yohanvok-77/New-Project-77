@@ -34,12 +34,14 @@ export function NoAccessScreen({ language }: { language: Language }) {
             {t.noAccessHelp}
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <button
-              type="button"
+            <a
+              href="https://t.me/itopcik"
+              target="_blank"
+              rel="noreferrer"
               className="rounded-2xl border border-blue/35 bg-blue/15 px-5 py-3 font-black text-blue transition hover:bg-blue/20"
             >
               {t.contactAdmin}
-            </button>
+            </a>
             <button
               type="button"
               onClick={logout}
