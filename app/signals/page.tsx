@@ -5,6 +5,7 @@ import { hasActiveAccess } from "@/lib/auth/access";
 import { getCurrentLanguage } from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { serializeSignal } from "@/lib/signals/serializeSignal";
+import { hiddenSignalSourceNames } from "@/lib/signals/sourceVisibility";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,13 @@ export default async function SignalsPage() {
   }
 
   const signals = await prisma.signal.findMany({
+    where: {
+      NOT: {
+        sourceName: {
+          in: hiddenSignalSourceNames,
+        },
+      },
+    },
     orderBy: { publishedAt: "desc" },
   });
 
