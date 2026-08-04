@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "@/components/BrandMark";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getCurrentUser } from "@/lib/auth/currentUser";
 import { hasActiveAccess } from "@/lib/auth/access";
@@ -8,8 +9,8 @@ export const dynamic = "force-dynamic";
 
 const copy = {
   ru: {
-    brand: "Торговые идеи",
-    logo: "ТИ",
+    brand: "izforex.pro",
+    logo: "IZ",
     login: "Войти",
     register: "Регистрация",
     enterPlatform: "Войти в платформу",
@@ -48,8 +49,8 @@ const copy = {
     disclaimer: "Информация представлена исключительно в образовательных целях и не является финансовой рекомендацией.",
   },
   en: {
-    brand: "Trading Ideas",
-    logo: "TI",
+    brand: "izforex.pro",
+    logo: "IZ",
     login: "Log in",
     register: "Register",
     enterPlatform: "Enter platform",
@@ -190,10 +191,7 @@ export default async function LandingPage() {
       <header className="fixed inset-x-0 top-0 z-30 px-4 py-4 sm:px-6 lg:px-8">
         <nav className="glass-panel mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-3xl px-4 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/10 text-lg font-black text-blue shadow-glow">
-              {t.logo}
-            </span>
-            <span className="truncate text-lg font-black tracking-normal">{t.brand}</span>
+            <BrandMark />
           </Link>
 
           <div className="flex items-center gap-2">
