@@ -30,7 +30,7 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
     () => signals.filter((signal) => isVisibleSignalSource(signal.sourceName)),
     [signals],
   );
-  const [activeFilter, setActiveFilter] = useState<SignalFilter>("all");
+  const [activeFilter, setActiveFilter] = useState<SignalFilter>("actual");
   const [activeSourceName, setActiveSourceName] = useState("all");
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [liveSignals, setLiveSignals] = useState<Signal[]>(initialVisibleSignals);
@@ -253,4 +253,3 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
       <SignalDetailsPanel signal={selectedSignal} onClose={() => setSelectedSignal(null)} language={language} />
     </main>
   );
-}
