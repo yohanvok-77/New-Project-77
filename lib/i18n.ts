@@ -8,15 +8,15 @@ export function normalizeLanguage(value: string | undefined | null): Language {
 
 export const dictionary = {
   ru: {
-    brand: "Торговые идеи",
-    logo: "ТИ",
+    brand: "izforex.pro",
+    logo: "IZ",
     subtitle: "Премиальные торговые сигналы в реальном времени",
     login: "Войти",
     register: "Регистрация",
     createAccount: "Создать аккаунт",
     enterPlatform: "Войти в платформу",
     premiumBadge: "Premium trading dashboard",
-    landingTitle: "Торговые идеи",
+    landingTitle: "izforex.pro",
     landingText:
       "Закрытая web-платформа для премиальных торговых сигналов с контролем доступа, жизненным циклом идей и чистым fintech-интерфейсом.",
     marketMonitoring: "мониторинг рынка",
@@ -59,7 +59,7 @@ export const dictionary = {
     closedProfit: "Закрыто в плюс",
     closedLoss: "Закрыто в минус",
     authLoginTitle: "Вход",
-    authLoginSubtitle: "Войдите, чтобы открыть платформу «Торговые идеи».",
+    authLoginSubtitle: "Войдите, чтобы открыть платформу izforex.pro.",
     authRegisterTitle: "Создать аккаунт",
     authRegisterSubtitle:
       "Регистрация не включает доступ автоматически. Подписку активирует администратор.",
@@ -130,15 +130,15 @@ export const dictionary = {
     userStatusActive: "Активен",
   },
   en: {
-    brand: "Trading Ideas",
-    logo: "TI",
+    brand: "izforex.pro",
+    logo: "IZ",
     subtitle: "Premium real-time trading signals",
     login: "Log in",
     register: "Register",
     createAccount: "Create account",
     enterPlatform: "Enter platform",
     premiumBadge: "Premium trading dashboard",
-    landingTitle: "Trading Ideas",
+    landingTitle: "izforex.pro",
     landingText:
       "A private web platform for premium trading signals with access control, signal lifecycle management, and a clean fintech interface.",
     marketMonitoring: "market monitoring",
@@ -181,7 +181,7 @@ export const dictionary = {
     closedProfit: "Closed in profit",
     closedLoss: "Closed in loss",
     authLoginTitle: "Log in",
-    authLoginSubtitle: "Log in to open the Trading Ideas platform.",
+    authLoginSubtitle: "Log in to open the izforex.pro platform.",
     authRegisterTitle: "Create account",
     authRegisterSubtitle:
       "Registration does not activate access automatically. An administrator enables the subscription.",
