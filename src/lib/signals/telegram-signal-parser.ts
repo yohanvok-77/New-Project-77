@@ -1,5 +1,4 @@
 import type { Prisma, SignalDirection } from "@prisma/client";
-import { normalizeSignalSourceName } from "@/lib/signals/sourceVisibility";
 
 export type ParsedTelegramSignal = {
   sourceText: string;
@@ -36,6 +35,7 @@ export type TelegramSignalParserOptions = {
 const defaultExpiresInHours = 24;
 const defaultWinrate = 70;
 const defaultSourceName = "E+R Range";
+const xauXagSourceName = "XAU/XAG Range";
 const winrateByOpenedPositions: Record<number, number> = {
   1: 62,
   2: 64,
@@ -127,6 +127,26 @@ function normalizePair(symbol: string) {
   }
 
   return cleanSymbol;
+}
+
+function normalizeParsedSourceName(
+  sourceName: string | undefined,
+  pair: string,
+  algorithmName: string,
+) {
+  const normalizedPair = pair.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const normalizedAlgorithm = algorithmName.toUpperCase();
+
+  if (
+    normalizedPair.startsWith("XAU") ||
+    normalizedPair.startsWith("XAG") ||
+    normalizedAlgorithm.startsWith("XAU-") ||
+    normalizedAlgorithm.startsWith("XAG-")
+  ) {
+    return xauXagSourceName;
+  }
+
+  return sourceName?.trim() || defaultSourceName;
 }
 
 function parseAlgorithm(algorithm: string) {
@@ -239,7 +259,7 @@ export function parseTelegramSignalMessage(
     openedPositions,
   });
   const pair = normalizePair(symbol || algorithmData.symbol);
-  const sourceName = normalizeSignalSourceName(options.sourceName, pair, algorithmData.algorithmName);
+  const sourceName = normalizeParsedSourceName(options.sourceName, pair, algorithmData.algorithmName);
 
   return {
     sourceText,
