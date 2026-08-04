@@ -19,12 +19,13 @@ export async function POST(request: Request) {
     const text = typeof body.text === "string" ? body.text : "";
     const winrate = typeof body.winrate === "number" ? body.winrate : undefined;
     const expiresInHours = typeof body.expiresInHours === "number" ? body.expiresInHours : undefined;
+    const sourceName = typeof body.sourceName === "string" && body.sourceName.trim() ? body.sourceName.trim() : undefined;
 
     if (!text.trim()) {
       return NextResponse.json({ message: "Signal text is required." }, { status: 400 });
     }
 
-    const result = await importTelegramSignal({ text, winrate, expiresInHours });
+    const result = await importTelegramSignal({ text, winrate, expiresInHours, sourceName });
 
     return NextResponse.json(serializeImportedSignal(result));
   } catch (error) {
