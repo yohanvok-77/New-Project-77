@@ -1,3 +1,7 @@
+import { loadEnvConfig } from "@next/env";
+
+loadEnvConfig(process.cwd());
+
 type TelegramChat = {
   id: number;
   title?: string;
@@ -29,7 +33,8 @@ type TelegramResponse<T> = {
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 const siteUrl = process.env.SITE_URL;
 const importSecret = process.env.TELEGRAM_IMPORT_SECRET;
-const allowedChatId = process.env.TELEGRAM_CHANNEL_ID;
+const legacyAllowedChatId = process.env.TELEGRAM_CHANNEL_ID;
+const telegramChannels = parseTelegramChannels(process.env.TELEGRAM_CHANNELS);
 const importPath = "/api/signals/telegram/import";
 const pollingTimeoutSeconds = 25;
 let offset = 0;
@@ -57,12 +62,40 @@ function getSignalText(update: TelegramUpdate) {
   };
 }
 
-function isAllowedChat(chatId: number) {
-  if (!allowedChatId) {
-    return true;
+function parseTelegramChannels(value: string | undefined) {
+  if (!value?.trim()) {
+    return new Map<string, string>();
   }
 
-  return String(chatId) === allowedChatId;
+  return value
+    .split(";")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .reduce((channels, item) => {
+      const separatorIndex = item.indexOf(":");
+      const chatId = separatorIndex >= 0 ? item.slice(0, separatorIndex).trim() : item.trim();
+      const sourceName = separatorIndex >= 0 ? item.slice(separatorIndex + 1).trim() : "";
+
+      if (chatId) {
+        channels.set(chatId, sourceName || "E+R Range");
+      }
+
+      return channels;
+    }, new Map<string, string>());
+}
+
+function getSourceNameForChat(chatId: number) {
+  const normalizedChatId = String(chatId);
+
+  if (telegramChannels.size > 0) {
+    return telegramChannels.get(normalizedChatId) ?? null;
+  }
+
+  if (legacyAllowedChatId) {
+    return normalizedChatId === legacyAllowedChatId ? "E+R Range" : null;
+  }
+
+  return "E+R Range";
 }
 
 async function telegramApi<T>(method: string, params: Record<string, string | number>) {
@@ -83,7 +116,7 @@ async function telegramApi<T>(method: string, params: Record<string, string | nu
   return body.result as T;
 }
 
-async function sendToSite(text: string, message: TelegramMessage) {
+async function sendToSite(text: string, message: TelegramMessage, sourceName: string) {
   const baseUrl = requireEnv(siteUrl, "SITE_URL").replace(/\/$/, "");
   const secret = requireEnv(importSecret, "TELEGRAM_IMPORT_SECRET");
   const response = await fetch(`${baseUrl}${importPath}`, {
@@ -94,6 +127,7 @@ async function sendToSite(text: string, message: TelegramMessage) {
     },
     body: JSON.stringify({
       text,
+      sourceName,
       publishedAt: new Date(message.date * 1000).toISOString(),
     }),
   });
@@ -114,14 +148,16 @@ async function processUpdate(update: TelegramUpdate) {
     return;
   }
 
-  if (!isAllowedChat(payload.message.chat.id)) {
+  const sourceName = getSourceNameForChat(payload.message.chat.id);
+
+  if (!sourceName) {
     console.log(`[telegram-bot] skipped chat=${payload.message.chat.id}`);
     return;
   }
 
-  const result = await sendToSite(payload.text, payload.message);
+  const result = await sendToSite(payload.text, payload.message, sourceName);
   console.log(
-    `[telegram-bot] imported message=${payload.message.message_id} chat=${payload.message.chat.id} signal=${result?.signal?.id ?? "unknown"} pair=${result?.signal?.pair ?? "unknown"}`,
+    `[telegram-bot] imported message=${payload.message.message_id} chat=${payload.message.chat.id} source="${sourceName}" signal=${result?.signal?.id ?? "unknown"} pair=${result?.signal?.pair ?? "unknown"}`,
   );
 }
 
@@ -159,7 +195,9 @@ requireEnv(botToken, "TELEGRAM_BOT_TOKEN");
 requireEnv(siteUrl, "SITE_URL");
 requireEnv(importSecret, "TELEGRAM_IMPORT_SECRET");
 
-console.log("[telegram-bot] started. Waiting for channel posts.");
+console.log(
+  `[telegram-bot] started. Waiting for channel posts. sources=${telegramChannels.size || (legacyAllowedChatId ? 1 : "all")}`,
+);
 void poll();
 
 process.on("SIGINT", shutdown);
