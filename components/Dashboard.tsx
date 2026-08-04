@@ -253,3 +253,4 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
       <SignalDetailsPanel signal={selectedSignal} onClose={() => setSelectedSignal(null)} language={language} />
     </main>
   );
+}
