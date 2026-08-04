@@ -29,6 +29,7 @@ export type TelegramSignalParserOptions = {
   publishedAt?: Date;
   expiresInHours?: number;
   defaultWinrate?: number;
+  sourceName?: string;
 };
 
 const defaultExpiresInHours = 24;
@@ -245,7 +246,7 @@ export function parseTelegramSignalMessage(
     symbol,
     pair: normalizePair(symbol || algorithmData.symbol),
     direction,
-    sourceName: defaultSourceName,
+    sourceName: options.sourceName?.trim() || defaultSourceName,
     order: openedPositions,
     volume: volumeRaw ? parseNumber(volumeRaw, "VOLUME") : null,
     entry,
