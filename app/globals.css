@@ -97,7 +97,7 @@ button {
 }
 
 .landing-orbit {
-  animation: landingOrbit 22s linear infinite;
+  animation: landingSceneIn 900ms ease both;
 }
 
 .landing-node {
