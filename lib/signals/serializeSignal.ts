@@ -1,7 +1,26 @@
 import type { Signal as PrismaSignal } from "@prisma/client";
 import type { Language } from "@/lib/i18n";
-import { normalizeSignalSourceName } from "@/lib/signals/sourceVisibility";
 import type { Signal, SignalStatus } from "@/types/signal";
+
+function normalizeSignalSourceName(
+  sourceName: string | null | undefined,
+  pair: string | null | undefined,
+  algorithmName?: string | null,
+) {
+  const normalizedPair = pair?.toUpperCase().replace(/[^A-Z0-9]/g, "") || "";
+  const normalizedAlgorithm = algorithmName?.toUpperCase() || "";
+
+  if (
+    normalizedPair.startsWith("XAU") ||
+    normalizedPair.startsWith("XAG") ||
+    normalizedAlgorithm.startsWith("XAU-") ||
+    normalizedAlgorithm.startsWith("XAG-")
+  ) {
+    return "XAU/XAG Range";
+  }
+
+  return sourceName?.trim() || "E+R Range";
+}
 
 export function serializeSignal(signal: PrismaSignal, language: Language): Signal {
   return {
