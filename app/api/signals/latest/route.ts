@@ -4,10 +4,11 @@ import { getCurrentUser } from "@/lib/auth/currentUser";
 import { getCurrentLanguage } from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { serializeSignal } from "@/lib/signals/serializeSignal";
-import { hiddenSignalSourceNames } from "@/lib/signals/sourceVisibility";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+const hiddenSignalSourceNames = ["E+M Range"];
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
