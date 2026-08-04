@@ -1,4 +1,5 @@
 import type { Prisma, SignalDirection } from "@prisma/client";
+import { normalizeSignalSourceName } from "@/lib/signals/sourceVisibility";
 
 export type ParsedTelegramSignal = {
   sourceText: string;
@@ -237,6 +238,8 @@ export function parseTelegramSignalMessage(
     gridOrders: algorithmData.gridOrders,
     openedPositions,
   });
+  const pair = normalizePair(symbol || algorithmData.symbol);
+  const sourceName = normalizeSignalSourceName(options.sourceName, pair, algorithmData.algorithmName);
 
   return {
     sourceText,
@@ -244,9 +247,9 @@ export function parseTelegramSignalMessage(
     algorithmName: algorithmData.algorithmName,
     algorithmImageUrl: getAlgorithmImageUrl(algorithmData.algorithmName),
     symbol,
-    pair: normalizePair(symbol || algorithmData.symbol),
+    pair,
     direction,
-    sourceName: options.sourceName?.trim() || defaultSourceName,
+    sourceName,
     order: openedPositions,
     volume: volumeRaw ? parseNumber(volumeRaw, "VOLUME") : null,
     entry,
