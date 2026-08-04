@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BrandMark } from "@/components/BrandMark";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import type { Language } from "@/lib/i18n";
 
@@ -21,9 +22,7 @@ export function AuthLayout({ title, subtitle, language, children }: AuthLayoutPr
         <div className="glass-panel w-full rounded-[2rem] p-6 sm:p-8">
           <div className="mb-8">
             <div className="mb-5 flex items-center justify-between">
-              <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/15 bg-white/10 shadow-glow">
-                <span className="text-xl font-black text-blue">{language === "en" ? "TI" : "ТИ"}</span>
-              </div>
+              <BrandMark compact />
               <LanguageSwitcher language={language} />
             </div>
             <h1 className="text-3xl font-black tracking-normal">{title}</h1>
