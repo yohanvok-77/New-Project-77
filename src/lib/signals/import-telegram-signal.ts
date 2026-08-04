@@ -9,12 +9,14 @@ export type ImportTelegramSignalOptions = {
   winrate?: number;
   expiresInHours?: number;
   publishedAt?: Date;
+  sourceName?: string;
 };
 
 export async function importTelegramSignal(options: ImportTelegramSignalOptions) {
   const parsed = parseTelegramSignalMessage(options.text, {
     expiresInHours: options.expiresInHours,
     publishedAt: options.publishedAt,
+    sourceName: options.sourceName,
   });
 
   const signal = await prisma.signal.create({
