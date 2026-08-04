@@ -26,6 +26,7 @@ declare global {
 export function Dashboard({ currentUser, language, signals }: DashboardProps) {
   const t = getDictionary(language);
   const [activeFilter, setActiveFilter] = useState<SignalFilter>("all");
+  const [activeSourceName, setActiveSourceName] = useState("all");
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [liveSignals, setLiveSignals] = useState<Signal[]>(signals);
   const [soundEnabled, setSoundEnabled] = useState(false);
@@ -38,6 +39,21 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
     setLiveSignals(signals);
     knownIdsRef.current = new Set(signals.map((signal) => signal.id));
   }, [signals]);
+
+  const sourceNames = useMemo(() => {
+    const preferredSources = ["E+R Range", "XAU/XAG Range"];
+    const dynamicSources = liveSignals
+      .map((signal) => signal.sourceName?.trim())
+      .filter((sourceName): sourceName is string => Boolean(sourceName));
+
+    return Array.from(new Set([...preferredSources, ...dynamicSources]));
+  }, [liveSignals]);
+
+  useEffect(() => {
+    if (activeSourceName !== "all" && !sourceNames.includes(activeSourceName)) {
+      setActiveSourceName("all");
+    }
+  }, [activeSourceName, sourceNames]);
 
   function playNewSignalSound() {
     if (!soundEnabled) {
@@ -99,25 +115,33 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
     return () => window.clearInterval(interval);
   }, [soundEnabled]);
 
-  const filteredSignals = useMemo(() => {
-    if (activeFilter === "all") {
+  const sourceFilteredSignals = useMemo(() => {
+    if (activeSourceName === "all") {
       return liveSignals;
     }
 
+    return liveSignals.filter((signal) => (signal.sourceName || "E+R Range") === activeSourceName);
+  }, [activeSourceName, liveSignals]);
+
+  const filteredSignals = useMemo(() => {
+    if (activeFilter === "all") {
+      return sourceFilteredSignals;
+    }
+
     if (activeFilter === "actual") {
-      return liveSignals.filter((signal) => isSignalActual(signal));
+      return sourceFilteredSignals.filter((signal) => isSignalActual(signal));
     }
 
     if (activeFilter === "closed") {
-      return liveSignals.filter((signal) => isSignalClosed(signal));
+      return sourceFilteredSignals.filter((signal) => isSignalClosed(signal));
     }
 
     if (activeFilter === "inactive") {
-      return liveSignals.filter((signal) => signal.status === "expired" || signal.status === "cancelled");
+      return sourceFilteredSignals.filter((signal) => signal.status === "expired" || signal.status === "cancelled");
     }
 
-    return liveSignals.filter((signal) => signal.direction === activeFilter);
-  }, [activeFilter, liveSignals]);
+    return sourceFilteredSignals.filter((signal) => signal.direction === activeFilter);
+  }, [activeFilter, sourceFilteredSignals]);
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-base">
@@ -128,10 +152,16 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
       </div>
 
       <div className="relative z-10 py-4 sm:py-6">
-        <Header currentUser={currentUser} language={language} />
+        <Header
+          currentUser={currentUser}
+          language={language}
+          sourceNames={sourceNames}
+          activeSourceName={activeSourceName}
+          onSourceNameChange={setActiveSourceName}
+        />
 
         <section className="mx-auto mt-8 flex w-full max-w-7xl flex-col gap-6 px-4 sm:px-6 lg:px-8">
-          <StatsCards signals={liveSignals} language={language} />
+          <StatsCards signals={sourceFilteredSignals} language={language} />
 
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
