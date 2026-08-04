@@ -1,5 +1,6 @@
 import type { Signal as PrismaSignal } from "@prisma/client";
 import type { Language } from "@/lib/i18n";
+import { normalizeSignalSourceName } from "@/lib/signals/sourceVisibility";
 import type { Signal, SignalStatus } from "@/types/signal";
 
 export function serializeSignal(signal: PrismaSignal, language: Language): Signal {
@@ -7,7 +8,7 @@ export function serializeSignal(signal: PrismaSignal, language: Language): Signa
     id: signal.id,
     pair: signal.pair,
     direction: signal.direction,
-    sourceName: signal.sourceName,
+    sourceName: normalizeSignalSourceName(signal.sourceName, signal.pair, signal.algorithmName),
     order: signal.order,
     algorithmName: signal.algorithmName,
     algorithmImageUrl: signal.algorithmImageUrl,
