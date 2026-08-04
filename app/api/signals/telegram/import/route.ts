@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     const winrate = typeof body.winrate === "number" ? body.winrate : undefined;
     const expiresInHours = typeof body.expiresInHours === "number" ? body.expiresInHours : undefined;
     const publishedAt = typeof body.publishedAt === "string" ? new Date(body.publishedAt) : undefined;
+    const sourceName = typeof body.sourceName === "string" && body.sourceName.trim() ? body.sourceName.trim() : undefined;
 
     if (!text.trim()) {
       return NextResponse.json({ message: "Signal text is required." }, { status: 400 });
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
       winrate,
       expiresInHours,
       publishedAt,
+      sourceName,
     });
 
     return NextResponse.json(serializeImportedSignal(result));
