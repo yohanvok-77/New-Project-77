@@ -9,7 +9,7 @@ import { StatsCards } from "@/components/StatsCards";
 import type { Language } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
 import { isSignalActual, isSignalClosed } from "@/lib/signalLifecycle";
-import { isVisibleSignalSource } from "@/lib/signals/sourceVisibility";
+import { isVisibleSignalSource, normalizeSignalSourceName } from "@/lib/signals/sourceVisibility";
 import type { Signal, SignalFilter } from "@/types/signal";
 
 interface DashboardProps {
@@ -48,7 +48,7 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
   const sourceNames = useMemo(() => {
     const preferredSources = ["E+R Range", "XAU/XAG Range"];
     const dynamicSources = liveSignals
-      .map((signal) => signal.sourceName?.trim())
+      .map((signal) => normalizeSignalSourceName(signal.sourceName, signal.pair, signal.algorithmName))
       .filter((sourceName): sourceName is string => Boolean(sourceName && isVisibleSignalSource(sourceName)));
 
     return Array.from(new Set([...preferredSources, ...dynamicSources]));
@@ -127,7 +127,9 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
       return liveSignals;
     }
 
-    return liveSignals.filter((signal) => (signal.sourceName || "E+R Range") === activeSourceName);
+    return liveSignals.filter(
+      (signal) => normalizeSignalSourceName(signal.sourceName, signal.pair, signal.algorithmName) === activeSourceName,
+    );
   }, [activeSourceName, liveSignals]);
 
   const filteredSignals = useMemo(() => {
