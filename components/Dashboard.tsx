@@ -9,13 +9,38 @@ import { StatsCards } from "@/components/StatsCards";
 import type { Language } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
 import { isSignalActual, isSignalClosed } from "@/lib/signalLifecycle";
-import { isVisibleSignalSource, normalizeSignalSourceName } from "@/lib/signals/sourceVisibility";
 import type { Signal, SignalFilter } from "@/types/signal";
 
 interface DashboardProps {
   currentUser: HeaderUser;
   language: Language;
   signals: Signal[];
+}
+
+const hiddenSignalSourceNames = ["E+M Range"];
+
+function isVisibleSignalSource(sourceName: string | null | undefined) {
+  return !hiddenSignalSourceNames.includes(sourceName?.trim() || "");
+}
+
+function normalizeSignalSourceName(
+  sourceName: string | null | undefined,
+  pair: string | null | undefined,
+  algorithmName?: string | null,
+) {
+  const normalizedPair = pair?.toUpperCase().replace(/[^A-Z0-9]/g, "") || "";
+  const normalizedAlgorithm = algorithmName?.toUpperCase() || "";
+
+  if (
+    normalizedPair.startsWith("XAU") ||
+    normalizedPair.startsWith("XAG") ||
+    normalizedAlgorithm.startsWith("XAU-") ||
+    normalizedAlgorithm.startsWith("XAG-")
+  ) {
+    return "XAU/XAG Range";
+  }
+
+  return sourceName?.trim() || "E+R Range";
 }
 
 declare global {
