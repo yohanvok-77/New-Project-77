@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/currentUser";
 import { getCurrentLanguage } from "@/lib/i18nServer";
 import { prisma } from "@/lib/prisma";
 import { serializeSignal } from "@/lib/signals/serializeSignal";
+import { hiddenSignalSourceNames } from "@/lib/signals/sourceVisibility";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,13 +19,20 @@ export async function GET(request: Request) {
   const language = getCurrentLanguage();
   const url = new URL(request.url);
   const since = url.searchParams.get("since");
-  const where = since
-    ? {
-        createdAt: {
-          gt: new Date(since),
-        },
-      }
-    : undefined;
+  const where = {
+    ...(since
+      ? {
+          createdAt: {
+            gt: new Date(since),
+          },
+        }
+      : {}),
+    NOT: {
+      sourceName: {
+        in: hiddenSignalSourceNames,
+      },
+    },
+  };
 
   const signals = await prisma.signal.findMany({
     where,
