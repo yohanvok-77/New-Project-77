@@ -9,6 +9,7 @@ import { StatsCards } from "@/components/StatsCards";
 import type { Language } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
 import { isSignalActual, isSignalClosed } from "@/lib/signalLifecycle";
+import { isVisibleSignalSource } from "@/lib/signals/sourceVisibility";
 import type { Signal, SignalFilter } from "@/types/signal";
 
 interface DashboardProps {
@@ -25,26 +26,30 @@ declare global {
 
 export function Dashboard({ currentUser, language, signals }: DashboardProps) {
   const t = getDictionary(language);
+  const initialVisibleSignals = useMemo(
+    () => signals.filter((signal) => isVisibleSignalSource(signal.sourceName)),
+    [signals],
+  );
   const [activeFilter, setActiveFilter] = useState<SignalFilter>("all");
   const [activeSourceName, setActiveSourceName] = useState("all");
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
-  const [liveSignals, setLiveSignals] = useState<Signal[]>(signals);
+  const [liveSignals, setLiveSignals] = useState<Signal[]>(initialVisibleSignals);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [newSignalNotice, setNewSignalNotice] = useState<Signal | null>(null);
   const [highlightedIds, setHighlightedIds] = useState<string[]>([]);
   const lastCheckRef = useRef(new Date().toISOString());
-  const knownIdsRef = useRef(new Set(signals.map((signal) => signal.id)));
+  const knownIdsRef = useRef(new Set(initialVisibleSignals.map((signal) => signal.id)));
 
   useEffect(() => {
-    setLiveSignals(signals);
-    knownIdsRef.current = new Set(signals.map((signal) => signal.id));
-  }, [signals]);
+    setLiveSignals(initialVisibleSignals);
+    knownIdsRef.current = new Set(initialVisibleSignals.map((signal) => signal.id));
+  }, [initialVisibleSignals]);
 
   const sourceNames = useMemo(() => {
     const preferredSources = ["E+R Range", "XAU/XAG Range"];
     const dynamicSources = liveSignals
       .map((signal) => signal.sourceName?.trim())
-      .filter((sourceName): sourceName is string => Boolean(sourceName));
+      .filter((sourceName): sourceName is string => Boolean(sourceName && isVisibleSignalSource(sourceName)));
 
     return Array.from(new Set([...preferredSources, ...dynamicSources]));
   }, [liveSignals]);
@@ -95,7 +100,9 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
 
         const payload = (await response.json()) as { serverTime: string; signals: Signal[] };
         lastCheckRef.current = payload.serverTime;
-        const freshSignals = payload.signals.filter((signal) => !knownIdsRef.current.has(signal.id));
+        const freshSignals = payload.signals.filter(
+          (signal) => isVisibleSignalSource(signal.sourceName) && !knownIdsRef.current.has(signal.id),
+        );
 
         if (freshSignals.length === 0) {
           return;
