@@ -100,7 +100,7 @@ function normalizeStepPoints(symbol: string, stepPoints: number) {
   const normalized = symbol.toUpperCase();
 
   if (normalized.includes("XAU")) {
-    return stepPoints * 100;
+    return stepPoints >= 1000 ? stepPoints : stepPoints * 100;
   }
 
   if (normalized.includes("XAG")) {
@@ -113,6 +113,10 @@ function normalizeStepPoints(symbol: string, stepPoints: number) {
 function getPriceDecimals(entry: number) {
   const decimalPart = entry.toString().split(".")[1];
   return Math.min(Math.max(decimalPart?.length ?? 5, 2), 6);
+}
+
+function normalizeAlgorithmSymbol(symbol: string) {
+  return symbol.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
 function normalizePair(symbol: string) {
@@ -156,9 +160,13 @@ function parseAlgorithm(algorithm: string) {
     throw new Error("TELEGRAM_SIGNAL_INVALID_ALGORITHM");
   }
 
-  const symbol = parts[0].toUpperCase();
+  const symbol = normalizeAlgorithmSymbol(parts[0]);
   const stepPoints = Number(parts[1]);
   const gridOrders = Number(parts[2]);
+
+  if (!symbol) {
+    throw new Error("TELEGRAM_SIGNAL_INVALID_ALGORITHM_SYMBOL");
+  }
 
   if (!Number.isFinite(stepPoints) || stepPoints <= 0) {
     throw new Error("TELEGRAM_SIGNAL_INVALID_STEP");
@@ -169,7 +177,7 @@ function parseAlgorithm(algorithm: string) {
   }
 
   return {
-    algorithmName: parts.join("-"),
+    algorithmName: [symbol, ...parts.slice(1)].join("-"),
     symbol,
     stepPoints,
     gridOrders,
