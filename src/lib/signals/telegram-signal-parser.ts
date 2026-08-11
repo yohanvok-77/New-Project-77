@@ -185,7 +185,7 @@ function parseAlgorithm(algorithm: string) {
 }
 
 function getAlgorithmImageUrl(algorithmName: string) {
-  return `/algorithm-charts/${algorithmName}.png`;
+  return `/algorithm-charts/${algorithmName}.jpg`;
 }
 
 function parseOpenedPositions(sourceText: string) {
