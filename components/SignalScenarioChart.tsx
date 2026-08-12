@@ -141,7 +141,7 @@ function getAlgorithmScenario(signal: Signal, language: Language) {
   const isBuy = signal.direction === "BUY";
   const formatPrice = (value: number) => value.toFixed(decimals);
   const formatStep = stepDistance.toFixed(Math.min(Math.max(decimals, 2), 4));
-  const rows: Array<{ order: number; entry: string; takeProfit: string }> = [];
+  const allRows: Array<{ order: number; entry: string; takeProfit: string }> = [];
 
   for (let order = currentOrder + 1; order < stopOrder; order += 1) {
     const stepsFromCurrent = order - currentOrder;
@@ -152,12 +152,16 @@ function getAlgorithmScenario(signal: Signal, language: Language) {
       ? takeProfit - stepDistance * stepsFromCurrent
       : takeProfit + stepDistance * stepsFromCurrent;
 
-    rows.push({
+    allRows.push({
       order,
       entry: formatPrice(entryLevel),
       takeProfit: formatPrice(takeProfitLevel),
     });
   }
+
+  const maxVisibleRows = 2;
+  const rows = allRows.slice(0, maxVisibleRows);
+  const hiddenRowCount = Math.max(allRows.length - maxVisibleRows, 0);
 
   if (language === "en") {
     return {
@@ -167,6 +171,8 @@ function getAlgorithmScenario(signal: Signal, language: Language) {
       rowPrefix: "If price reaches",
       rowMiddle: "we move TP to",
       rows,
+      hiddenRowCount,
+      moreLevelsLabel: (count: number) => `+${count} more level${count === 1 ? "" : "s"}`,
       empty: "The next order is the stop-loss zone, so TP is not moved further.",
       stepLabel: "Grid step",
       stepValue: formatStep,
@@ -182,6 +188,8 @@ function getAlgorithmScenario(signal: Signal, language: Language) {
     rowPrefix: "Если цена дойдёт до",
     rowMiddle: "то мы передвигаем TP на",
     rows,
+    hiddenRowCount,
+    moreLevelsLabel: (count: number) => `+${count} уровн${count === 1 ? "ень" : count < 5 ? "я" : "ей"}`,
     empty: "Следующий ордер является зоной Stop Loss, поэтому TP дальше не передвигается.",
     stepLabel: "Шаг сетки",
     stepValue: formatStep,
@@ -230,7 +238,7 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
 
       <div className="relative mt-4 flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#080B12]/80 lg:flex-1">
         {signal.algorithmImageUrl ? (
-          <div className="relative z-10 h-64 w-full shrink-0 bg-[#080B12] p-3 sm:h-72 sm:p-4 lg:h-[360px]">
+          <div className="relative z-10 h-52 w-full shrink-0 bg-[#080B12] p-2.5 sm:h-64 sm:p-3 lg:h-[240px]">
             <div className="h-full w-full overflow-hidden rounded-2xl bg-white">
               <img
                 src={signal.algorithmImageUrl}
@@ -250,7 +258,7 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
           <>
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(59,130,246,0.2),transparent_34%),radial-gradient(circle_at_18%_78%,rgba(245,158,11,0.14),transparent_34%)]" />
             <svg
-              className="relative z-10 h-64 w-full shrink-0 sm:h-72 lg:h-[360px]"
+              className="relative z-10 h-52 w-full shrink-0 sm:h-64 lg:h-[240px]"
               viewBox="0 0 320 190"
               role="img"
               aria-label={`${t.scenarioAria} ${signal.pair}`}
@@ -349,22 +357,6 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
         )}
 
         <div className="flex flex-1 flex-col divide-y divide-white/10">
-          <div className="grid shrink-0 grid-cols-3 gap-2 bg-white/[0.05] p-4">
-            {points.map((point) => (
-              <div
-                key={point.label}
-                className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-3"
-              >
-                <p className="text-xs font-black uppercase tracking-normal" style={{ color: point.color }}>
-                  {point.label}
-                </p>
-                <p className="mt-1 truncate text-base font-black sm:text-lg" style={{ color: point.color }}>
-                  {point.value}
-                </p>
-              </div>
-            ))}
-          </div>
-
           {tradeStats ? (
             <div className="shrink-0 space-y-3 p-4">
               <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-5 py-4">
@@ -408,16 +400,23 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
 
                   <div className="mt-3 space-y-2">
                     {algorithmScenario.rows.length > 0 ? (
-                      algorithmScenario.rows.map((row) => (
-                        <p
-                          key={row.order}
-                          className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-sm font-bold leading-relaxed text-text"
-                        >
-                          {algorithmScenario.rowPrefix}{" "}
-                          <span className="text-blue">{row.entry}</span>, {algorithmScenario.rowMiddle}{" "}
-                          <span className="text-success">{row.takeProfit}</span>.
-                        </p>
-                      ))
+                      <>
+                        {algorithmScenario.rows.map((row) => (
+                          <p
+                            key={row.order}
+                            className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-sm font-bold leading-relaxed text-text"
+                          >
+                            {algorithmScenario.rowPrefix}{" "}
+                            <span className="text-blue">{row.entry}</span>, {algorithmScenario.rowMiddle}{" "}
+                            <span className="text-success">{row.takeProfit}</span>.
+                          </p>
+                        ))}
+                        {algorithmScenario.hiddenRowCount > 0 ? (
+                          <p className="px-1 text-xs font-bold text-muted">
+                            {algorithmScenario.moreLevelsLabel(algorithmScenario.hiddenRowCount)}
+                          </p>
+                        ) : null}
+                      </>
                     ) : (
                       <p className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-bold leading-relaxed text-danger">
                         {algorithmScenario.empty}
