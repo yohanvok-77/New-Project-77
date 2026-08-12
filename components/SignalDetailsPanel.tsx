@@ -1,5 +1,6 @@
 import { SignalScenarioChart } from "@/components/SignalScenarioChart";
 import { getSignalStatusColor, getSignalStatusLabel } from "@/lib/signalLifecycle";
+import { getAlgorithmScenario } from "@/lib/signals/algorithmScenario";
 import type { Signal } from "@/types/signal";
 import type { Language } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
@@ -15,12 +16,6 @@ const directionStyles = {
   SELL: "border-violet/30 bg-violet/15 text-violet",
 };
 
-const detailValueStyles: Record<string, string> = {
-  entry: "text-blue",
-  stopLoss: "text-danger",
-  takeProfit: "text-success",
-};
-
 export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsPanelProps) {
   const t = getDictionary(language);
 
@@ -28,13 +23,18 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
     return null;
   }
 
+  const algorithmScenario = getAlgorithmScenario(signal, language);
+
   const details: Array<{ key: string; label: string; value: string }> = [
     { key: "algorithm", label: "Algorithm", value: signal.algorithmName || "—" },
     { key: "order", label: "Order", value: signal.order ? `#${signal.order}` : "—" },
-    { key: "entry", label: "Entry price", value: signal.entry },
-    { key: "stopLoss", label: "Stop Loss", value: signal.stopLoss },
-    { key: "takeProfit", label: "Take Profit", value: signal.takeProfit },
     { key: "published", label: t.publication, value: signal.publishedAt },
+  ];
+
+  const priceRows: Array<{ key: string; label: string; value: string; styles: string; valueColor: string }> = [
+    { key: "entry", label: "Entry price", value: signal.entry, styles: "border-blue/25 bg-blue/10", valueColor: "text-blue" },
+    { key: "stopLoss", label: "Stop Loss", value: signal.stopLoss, styles: "border-danger/25 bg-danger/10", valueColor: "text-danger" },
+    { key: "takeProfit", label: "Take Profit", value: signal.takeProfit, styles: "border-success/25 bg-success/10", valueColor: "text-success" },
   ];
 
   return (
@@ -99,7 +99,73 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
                   style={{ width: `${signal.winrate}%` }}
                 />
               </div>
+
+              {algorithmScenario ? (
+                <div className="relative mt-3 border-t border-white/10 pt-3">
+                  <p className="text-sm font-black uppercase tracking-normal text-text">
+                    {algorithmScenario.title}
+                  </p>
+                  <p className="mt-2 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-sm font-bold leading-relaxed text-text">
+                    {algorithmScenario.intro} {algorithmScenario.stopLine}
+                  </p>
+
+                  <div className="mt-2 space-y-2">
+                    {algorithmScenario.rows.length > 0 ? (
+                      <>
+                        {algorithmScenario.rows.map((row) => (
+                          <p
+                            key={row.order}
+                            className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm font-bold leading-relaxed text-text"
+                          >
+                            {algorithmScenario.rowPrefix}{" "}
+                            <span className="text-blue">{row.entry}</span>, {algorithmScenario.rowMiddle}{" "}
+                            <span className="text-success">{row.takeProfit}</span>.
+                          </p>
+                        ))}
+                        {algorithmScenario.hiddenRowCount > 0 ? (
+                          <p className="px-1 text-xs font-bold text-muted">
+                            {algorithmScenario.moreLevelsLabel(algorithmScenario.hiddenRowCount)}
+                          </p>
+                        ) : null}
+                      </>
+                    ) : (
+                      <p className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-2.5 text-sm font-bold leading-relaxed text-danger">
+                        {algorithmScenario.empty}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5">
+                      <p className="text-xs font-black uppercase tracking-normal text-muted">
+                        {algorithmScenario.stepLabel}
+                      </p>
+                      <p className="mt-1 text-lg font-black text-blue">{algorithmScenario.stepValue}</p>
+                    </div>
+                    <div className="rounded-2xl border border-danger/25 bg-danger/10 px-4 py-2.5">
+                      <p className="text-xs font-black uppercase tracking-normal text-danger">
+                        {algorithmScenario.stopLabel}
+                      </p>
+                      <p className="mt-1 text-lg font-black text-danger">{algorithmScenario.stopValue}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
+
+            <dl className="grid gap-2">
+              {priceRows.map((row) => (
+                <div
+                  key={row.key}
+                  className={`flex items-center justify-between gap-4 rounded-2xl border px-4 py-3 backdrop-blur-xl ${row.styles}`}
+                >
+                  <dt className="text-sm font-bold text-muted">{row.label}</dt>
+                  <dd className={`min-w-0 break-words text-right text-xl font-black ${row.valueColor}`}>
+                    {row.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
 
             <dl className="grid gap-2">
               {details.map((detail) => (
@@ -108,12 +174,7 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
                   className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5 backdrop-blur-xl transition hover:border-white/16 hover:bg-white/[0.065]"
                 >
                   <dt className="text-sm font-semibold text-muted">{detail.label}</dt>
-                  <dd
-                    className={[
-                      "min-w-0 break-words text-right text-base font-black",
-                      detailValueStyles[detail.key] || "text-text",
-                    ].join(" ")}
-                  >
+                  <dd className="min-w-0 break-words text-right text-base font-black text-text">
                     {detail.value}
                   </dd>
                 </div>
