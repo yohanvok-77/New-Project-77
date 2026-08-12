@@ -11,8 +11,8 @@ interface SignalDetailsPanelProps {
 }
 
 const directionStyles = {
-  BUY: "border-success/30 bg-success/15 text-success",
-  SELL: "border-danger/30 bg-danger/15 text-danger",
+  BUY: "border-blue/30 bg-blue/15 text-blue",
+  SELL: "border-violet/30 bg-violet/15 text-violet",
 };
 
 const detailValueStyles: Record<string, string> = {
@@ -31,9 +31,6 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
   const details: Array<{ key: string; label: string; value: string }> = [
     { key: "algorithm", label: "Algorithm", value: signal.algorithmName || "—" },
     { key: "order", label: "Order", value: signal.order ? `#${signal.order}` : "—" },
-    { key: "entry", label: "Entry price", value: signal.entry },
-    { key: "stopLoss", label: "Stop Loss", value: signal.stopLoss },
-    { key: "takeProfit", label: "Take Profit", value: signal.takeProfit },
     { key: "published", label: t.publication, value: signal.publishedAt },
   ];
 
