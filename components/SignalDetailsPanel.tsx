@@ -46,58 +46,58 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
         onClick={onClose}
       />
 
-      <aside className="glass-panel relative max-h-[92vh] w-full max-w-6xl overflow-hidden rounded-[2rem] border-white/16 p-4 shadow-glass animate-sheetUp sm:p-5 lg:p-6">
+      <aside className="glass-panel relative max-h-[92vh] w-full max-w-6xl overflow-hidden rounded-[2rem] border-white/16 p-4 shadow-glass animate-sheetUp sm:p-5">
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
         <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-blue/18 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-gold/12 blur-3xl" />
 
         <div className="relative flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-sm font-black uppercase tracking-normal text-muted">{t.detailsTitle}</p>
-            <h2 className="mt-2 break-words text-4xl font-black tracking-normal text-text">
+            <p className="text-xs font-black uppercase tracking-normal text-muted">{t.detailsTitle}</p>
+            <h2 className="mt-1 break-words text-3xl font-black tracking-normal text-text">
               {signal.pair}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-white/12 bg-white/10 text-2xl text-text shadow-glow transition hover:scale-105 hover:bg-white/15"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/12 bg-white/10 text-xl text-text shadow-glow transition hover:scale-105 hover:bg-white/15"
             aria-label={t.close}
           >
             ×
           </button>
         </div>
 
-        <div className="relative mt-5 grid max-h-[calc(92vh-7.5rem)] gap-5 overflow-y-auto pr-1 lg:grid-cols-[0.9fr_1.25fr] lg:items-stretch">
+        <div className="relative mt-4 grid max-h-[calc(92vh-6rem)] gap-4 overflow-y-auto pr-1 lg:grid-cols-[0.9fr_1.25fr] lg:items-stretch">
           <section className="grid gap-4">
-            <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-white/[0.055] p-4">
-              <div className="pointer-events-none absolute -right-12 top-4 h-32 w-32 rounded-full bg-gold/12 blur-3xl" />
-              <div className="relative flex flex-wrap gap-2">
-                <span
-                  className={`rounded-full border px-3 py-1.5 text-sm font-black ${directionStyles[signal.direction]}`}
-                >
-                  {signal.direction}
-                </span>
-                <span
-                  className={`rounded-full border px-3 py-1.5 text-sm font-black ${getSignalStatusColor(
-                    signal.status,
-                  )}`}
-                >
-                  {getSignalStatusLabel(signal.status, language)}
-                </span>
-              </div>
-
-              <div className="relative mt-5">
-                <p className="text-sm font-semibold text-muted">Winrate</p>
-                <strong className="mt-1 block text-5xl font-black leading-none tracking-normal text-text lg:text-6xl">
-                  {signal.winrate}%
-                </strong>
-                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-blue via-success to-gold"
-                    style={{ width: `${signal.winrate}%` }}
-                  />
+            <div className="relative overflow-hidden rounded-2xl border border-white/12 bg-white/[0.055] p-3">
+              <div className="relative flex items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-2">
+                  <span
+                    className={`rounded-full border px-2.5 py-1 text-xs font-black ${directionStyles[signal.direction]}`}
+                  >
+                    {signal.direction}
+                  </span>
+                  <span
+                    className={`rounded-full border px-2.5 py-1 text-xs font-black ${getSignalStatusColor(
+                      signal.status,
+                    )}`}
+                  >
+                    {getSignalStatusLabel(signal.status, language)}
+                  </span>
                 </div>
+                <div className="shrink-0 text-right">
+                  <p className="text-[11px] font-semibold uppercase tracking-normal text-muted">Winrate</p>
+                  <strong className="block text-2xl font-black leading-none tracking-normal text-text">
+                    {signal.winrate}%
+                  </strong>
+                </div>
+              </div>
+              <div className="relative mt-2.5 h-1 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue via-success to-gold"
+                  style={{ width: `${signal.winrate}%` }}
+                />
               </div>
             </div>
 
@@ -105,7 +105,7 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
               {details.map((detail) => (
                 <div
                   key={detail.key}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 backdrop-blur-xl transition hover:border-white/16 hover:bg-white/[0.065]"
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5 backdrop-blur-xl transition hover:border-white/16 hover:bg-white/[0.065]"
                 >
                   <dt className="text-sm font-semibold text-muted">{detail.label}</dt>
                   <dd
