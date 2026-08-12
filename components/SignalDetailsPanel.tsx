@@ -31,6 +31,9 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
   const details: Array<{ key: string; label: string; value: string }> = [
     { key: "algorithm", label: "Algorithm", value: signal.algorithmName || "—" },
     { key: "order", label: "Order", value: signal.order ? `#${signal.order}` : "—" },
+    { key: "entry", label: "Entry price", value: signal.entry },
+    { key: "stopLoss", label: "Stop Loss", value: signal.stopLoss },
+    { key: "takeProfit", label: "Take Profit", value: signal.takeProfit },
     { key: "published", label: t.publication, value: signal.publishedAt },
   ];
 
@@ -67,7 +70,7 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
 
         <div className="relative mt-5 grid max-h-[calc(92vh-7.5rem)] gap-5 overflow-y-auto pr-1 lg:grid-cols-[0.9fr_1.25fr] lg:items-stretch">
           <section className="grid gap-4">
-            <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-white/[0.055] p-5">
+            <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-white/[0.055] p-4">
               <div className="pointer-events-none absolute -right-12 top-4 h-32 w-32 rounded-full bg-gold/12 blur-3xl" />
               <div className="relative flex flex-wrap gap-2">
                 <span
@@ -84,12 +87,12 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
                 </span>
               </div>
 
-              <div className="relative mt-7">
+              <div className="relative mt-5">
                 <p className="text-sm font-semibold text-muted">Winrate</p>
-                <strong className="mt-2 block text-6xl font-black leading-none tracking-normal text-text lg:text-7xl">
+                <strong className="mt-1 block text-5xl font-black leading-none tracking-normal text-text lg:text-6xl">
                   {signal.winrate}%
                 </strong>
-                <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/10">
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-blue via-success to-gold"
                     style={{ width: `${signal.winrate}%` }}
@@ -98,16 +101,16 @@ export function SignalDetailsPanel({ signal, onClose, language }: SignalDetailsP
               </div>
             </div>
 
-            <dl className="grid gap-3">
+            <dl className="grid gap-2">
               {details.map((detail) => (
                 <div
                   key={detail.key}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-4 backdrop-blur-xl transition hover:border-white/16 hover:bg-white/[0.065]"
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 backdrop-blur-xl transition hover:border-white/16 hover:bg-white/[0.065]"
                 >
                   <dt className="text-sm font-semibold text-muted">{detail.label}</dt>
                   <dd
                     className={[
-                      "min-w-0 break-words text-right text-lg font-black",
+                      "min-w-0 break-words text-right text-base font-black",
                       detailValueStyles[detail.key] || "text-text",
                     ].join(" ")}
                   >
