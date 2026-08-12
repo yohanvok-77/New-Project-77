@@ -15,8 +15,185 @@ interface ChartPoint {
   color: string;
 }
 
+function getPipSize(pair: string, entry: string) {
+  const decimals = (entry.split(".")[1] || "").length;
+
+  if (pair.toUpperCase().includes("JPY")) {
+    return 0.01;
+  }
+
+  if (decimals <= 3) {
+    return 0.01;
+  }
+
+  return 0.0001;
+}
+
+function computeTradeStats(signal: Signal) {
+  const entry = Number.parseFloat(signal.entry);
+  const stopLoss = Number.parseFloat(signal.stopLoss);
+  const takeProfit = Number.parseFloat(signal.takeProfit);
+
+  if (!Number.isFinite(entry) || !Number.isFinite(stopLoss) || !Number.isFinite(takeProfit)) {
+    return null;
+  }
+
+  const pipSize = getPipSize(signal.pair, signal.entry);
+  const riskDistance = Math.abs(entry - stopLoss);
+  const rewardDistance = Math.abs(takeProfit - entry);
+
+  if (riskDistance === 0) {
+    return null;
+  }
+
+  return {
+    riskPips: Math.round(riskDistance / pipSize),
+    rewardPips: Math.round(rewardDistance / pipSize),
+    ratio: rewardDistance / riskDistance,
+  };
+}
+
+function toNumber(value: string | null | undefined) {
+  const parsed = Number(String(value || "").replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getPriceDecimals(value: string) {
+  const decimalPart = value.split(".")[1] || value.split(",")[1];
+  return Math.min(Math.max(decimalPart?.length ?? 5, 2), 6);
+}
+
+function getAlgorithmPipSize(symbol: string, entry: number) {
+  const normalized = symbol.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+  if (normalized.includes("XAU")) {
+    return 0.01;
+  }
+
+  if (normalized.includes("XAG")) {
+    return 0.001;
+  }
+
+  if (normalized.includes("JPY")) {
+    return 0.01;
+  }
+
+  if (entry >= 1000) {
+    return 1;
+  }
+
+  return 0.0001;
+}
+
+function normalizeStepPoints(symbol: string, stepPoints: number) {
+  const normalized = symbol.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
+  if (normalized.includes("XAU")) {
+    return stepPoints >= 1000 ? stepPoints : stepPoints * 100;
+  }
+
+  if (normalized.includes("XAG")) {
+    return stepPoints * 10;
+  }
+
+  return stepPoints;
+}
+
+function getAlgorithmParts(algorithmName: string | null | undefined) {
+  const parts = (algorithmName || "").trim().replace(/-+$/, "").split("-").filter(Boolean);
+  const rawSymbol = parts[0]?.toUpperCase().replace(/[^A-Z0-9]/g, "") || "";
+  const stepPoints = Number(parts[1]);
+  const gridOrders = Number(parts[2]);
+
+  if (!rawSymbol || !Number.isFinite(stepPoints) || !Number.isFinite(gridOrders)) {
+    return null;
+  }
+
+  return {
+    symbol: rawSymbol,
+    stepPoints,
+    gridOrders,
+  };
+}
+
+function getRussianCurrentOrderLabel(order: number) {
+  return `${order}-${order === 3 ? "ем" : "ом"}`;
+}
+
+function getRussianStopOrderLabel(order: number) {
+  return `${order}-${order === 3 ? "ий" : "ый"}`;
+}
+
+function getAlgorithmScenario(signal: Signal, language: Language) {
+  const algorithm = getAlgorithmParts(signal.algorithmName);
+  const currentOrder = signal.order || null;
+  const entry = toNumber(signal.entry);
+  const takeProfit = toNumber(signal.takeProfit);
+
+  if (!algorithm || !currentOrder || !entry || !takeProfit) {
+    return null;
+  }
+
+  const stopOrder = algorithm.gridOrders;
+  const pipSize = getAlgorithmPipSize(algorithm.symbol || signal.pair, entry);
+  const stepDistance = normalizeStepPoints(algorithm.symbol || signal.pair, algorithm.stepPoints) * pipSize;
+  const decimals = getPriceDecimals(signal.entry);
+  const isBuy = signal.direction === "BUY";
+  const formatPrice = (value: number) => value.toFixed(decimals);
+  const formatStep = stepDistance.toFixed(Math.min(Math.max(decimals, 2), 4));
+  const rows: Array<{ order: number; entry: string; takeProfit: string }> = [];
+
+  for (let order = currentOrder + 1; order < stopOrder; order += 1) {
+    const stepsFromCurrent = order - currentOrder;
+    const entryLevel = isBuy
+      ? entry - stepDistance * stepsFromCurrent
+      : entry + stepDistance * stepsFromCurrent;
+    const takeProfitLevel = isBuy
+      ? takeProfit - stepDistance * stepsFromCurrent
+      : takeProfit + stepDistance * stepsFromCurrent;
+
+    rows.push({
+      order,
+      entry: formatPrice(entryLevel),
+      takeProfit: formatPrice(takeProfitLevel),
+    });
+  }
+
+  if (language === "en") {
+    return {
+      title: "Algorithm logic",
+      intro: `Our algorithm consists of ${stopOrder} orders. We are currently on order #${currentOrder}.`,
+      stopLine: `Since order #${stopOrder} is our Stop Loss, then:`,
+      rowPrefix: "If price reaches",
+      rowMiddle: "we move TP to",
+      rows,
+      empty: "The next order is the stop-loss zone, so TP is not moved further.",
+      stepLabel: "Grid step",
+      stepValue: formatStep,
+      stopLabel: "SL order",
+      stopValue: `#${stopOrder}`,
+    };
+  }
+
+  return {
+    title: "Логика алгоритма",
+    intro: `Наш алгоритм состоит из ${stopOrder} ордеров, сейчас мы находимся на ${getRussianCurrentOrderLabel(currentOrder)} ордере.`,
+    stopLine: `Так как ${getRussianStopOrderLabel(stopOrder)} ордер у нас Stop Loss, то:`,
+    rowPrefix: "Если цена дойдёт до",
+    rowMiddle: "то мы передвигаем TP на",
+    rows,
+    empty: "Следующий ордер является зоной Stop Loss, поэтому TP дальше не передвигается.",
+    stepLabel: "Шаг сетки",
+    stepValue: formatStep,
+    stopLabel: "SL ордер",
+    stopValue: `#${stopOrder}`,
+  };
+}
+
 export function SignalScenarioChart({ signal, language }: SignalScenarioChartProps) {
   const t = getDictionary(language);
+  const tradeStats = computeTradeStats(signal);
+  const algorithmScenario = getAlgorithmScenario(signal, language);
   const isBuy = signal.direction === "BUY";
   const path = isBuy
     ? "M20 136 C52 116 70 129 96 105 C125 78 149 101 178 70 C205 41 229 58 264 34"
@@ -51,27 +228,29 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
         </div>
       </div>
 
-      <div className="relative mt-4 overflow-hidden rounded-3xl border border-white/10 bg-[#080B12]/80 lg:flex-1">
+      <div className="relative mt-4 flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#080B12]/80 lg:flex-1">
         {signal.algorithmImageUrl ? (
-          <div className="relative z-10 h-64 w-full bg-white sm:h-72 lg:h-[360px]">
-            <img
-              src={signal.algorithmImageUrl}
-              alt={signal.algorithmName || `${signal.pair} algorithm chart`}
-              className="h-full w-full object-contain"
-              onError={(event) => {
-                const image = event.currentTarget;
+          <div className="relative z-10 h-64 w-full shrink-0 bg-[#080B12] p-3 sm:h-72 sm:p-4 lg:h-[360px]">
+            <div className="h-full w-full overflow-hidden rounded-2xl bg-white">
+              <img
+                src={signal.algorithmImageUrl}
+                alt={signal.algorithmName || `${signal.pair} algorithm chart`}
+                className="h-[128%] w-full object-cover object-top"
+                onError={(event) => {
+                  const image = event.currentTarget;
 
-                if (image.src.endsWith(".png")) {
-                  image.src = image.src.replace(/\.png$/, ".jpg");
-                }
-              }}
-            />
+                  if (image.src.endsWith(".png")) {
+                    image.src = image.src.replace(/\.png$/, ".jpg");
+                  }
+                }}
+              />
+            </div>
           </div>
         ) : (
           <>
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(59,130,246,0.2),transparent_34%),radial-gradient(circle_at_18%_78%,rgba(245,158,11,0.14),transparent_34%)]" />
             <svg
-              className="relative z-10 h-64 w-full sm:h-72 lg:h-[360px]"
+              className="relative z-10 h-64 w-full shrink-0 sm:h-72 lg:h-[360px]"
               viewBox="0 0 320 190"
               role="img"
               aria-label={`${t.scenarioAria} ${signal.pair}`}
@@ -169,20 +348,101 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
           </>
         )}
 
-        <div className="grid grid-cols-3 gap-2 border-t border-white/10 bg-white/[0.05] p-4">
-          {points.map((point) => (
-            <div
-              key={point.label}
-              className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-3"
-            >
-              <p className="text-xs font-black uppercase tracking-normal" style={{ color: point.color }}>
-                {point.label}
-              </p>
-              <p className="mt-1 truncate text-base font-black sm:text-lg" style={{ color: point.color }}>
-                {point.value}
-              </p>
+        <div className="flex flex-1 flex-col divide-y divide-white/10">
+          <div className="grid shrink-0 grid-cols-3 gap-2 bg-white/[0.05] p-4">
+            {points.map((point) => (
+              <div
+                key={point.label}
+                className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-3"
+              >
+                <p className="text-xs font-black uppercase tracking-normal" style={{ color: point.color }}>
+                  {point.label}
+                </p>
+                <p className="mt-1 truncate text-base font-black sm:text-lg" style={{ color: point.color }}>
+                  {point.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {tradeStats ? (
+            <div className="shrink-0 space-y-3 p-4">
+              <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-5 py-4">
+                <p className="text-xs font-black uppercase tracking-normal text-muted">
+                  {t.riskReward}
+                </p>
+                <p className="text-2xl font-black text-gold sm:text-3xl">
+                  1&nbsp;:&nbsp;{tradeStats.ratio.toFixed(1)}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3">
+                  <p className="text-xs font-black uppercase tracking-normal text-success">
+                    {t.pipsToTakeProfit}
+                  </p>
+                  <p className="mt-1 text-xl font-black text-text">{tradeStats.rewardPips}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3">
+                  <p className="text-xs font-black uppercase tracking-normal text-danger">
+                    {t.pipsToStopLoss}
+                  </p>
+                  <p className="mt-1 text-xl font-black text-text">{tradeStats.riskPips}</p>
+                </div>
+              </div>
             </div>
-          ))}
+          ) : null}
+
+          <div className="shrink-0 p-4 sm:p-5">
+            {algorithmScenario ? (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-black uppercase tracking-normal text-text">
+                    {algorithmScenario.title}
+                  </p>
+                  <p className="mt-2 text-sm font-bold leading-relaxed text-text sm:text-base">
+                    {algorithmScenario.intro}
+                  </p>
+                  <p className="mt-1 text-sm font-bold leading-relaxed text-muted sm:text-base">
+                    {algorithmScenario.stopLine}
+                  </p>
+
+                  <div className="mt-3 space-y-2">
+                    {algorithmScenario.rows.length > 0 ? (
+                      algorithmScenario.rows.map((row) => (
+                        <p
+                          key={row.order}
+                          className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-sm font-bold leading-relaxed text-text"
+                        >
+                          {algorithmScenario.rowPrefix}{" "}
+                          <span className="text-blue">{row.entry}</span>, {algorithmScenario.rowMiddle}{" "}
+                          <span className="text-success">{row.takeProfit}</span>.
+                        </p>
+                      ))
+                    ) : (
+                      <p className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-bold leading-relaxed text-danger">
+                        {algorithmScenario.empty}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3">
+                    <p className="text-xs font-black uppercase tracking-normal text-muted">
+                      {algorithmScenario.stepLabel}
+                    </p>
+                    <p className="mt-1 text-lg font-black text-blue">{algorithmScenario.stepValue}</p>
+                  </div>
+                  <div className="rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3">
+                    <p className="text-xs font-black uppercase tracking-normal text-danger">
+                      {algorithmScenario.stopLabel}
+                    </p>
+                    <p className="mt-1 text-lg font-black text-danger">{algorithmScenario.stopValue}</p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </section>
