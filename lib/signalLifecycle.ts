@@ -7,8 +7,15 @@ export function isSignalClosed(signal: Signal) {
 }
 
 export function isSignalActual(signal: Signal, now = new Date()) {
-  const isOpen = signal.status === "pending" || signal.status === "active";
-  return isOpen && now.getTime() <= new Date(signal.expiresAt).getTime();
+  if (signal.status === "active") {
+    return true;
+  }
+
+  if (signal.status === "pending") {
+    return now.getTime() <= new Date(signal.expiresAt).getTime();
+  }
+
+  return false;
 }
 
 export function getSignalStatusLabel(status: SignalStatus, language: Language = "ru") {
@@ -23,6 +30,19 @@ export function getSignalStatusLabel(status: SignalStatus, language: Language = 
   };
 
   return labels[status];
+}
+
+export function getSignalStatusGlyph(status: SignalStatus) {
+  const glyphs: Record<SignalStatus, string> = {
+    pending: "\u25CB", // ○ waiting
+    active: "\u25CF", // ● in progress
+    closed_tp: "\u2713", // ✓ closed in profit
+    closed_sl: "\u2715", // ✕ closed in loss
+    expired: "\u2013", // – not active
+    cancelled: "\u2013", // – cancelled
+  };
+
+  return glyphs[status];
 }
 
 export function getSignalStatusColor(status: SignalStatus) {
@@ -70,6 +90,22 @@ export function updateSignalByPrice(signal: Signal, currentPrice: number, now = 
 
   if (isSignalClosed(signal) || signal.status === "expired" || signal.status === "cancelled") {
     return { ...signal, lastPrice };
+  }
+
+  const entry = parseSignalPrice(signal.entry);
+
+  if (signal.status === "pending") {
+    const hitEntry = signal.direction === "BUY" ? currentPrice >= entry : currentPrice <= entry;
+
+    if (!hitEntry) {
+      return { ...signal, lastPrice };
+    }
+
+    signal = {
+      ...signal,
+      status: "active",
+      activatedAt: now.toISOString(),
+    };
   }
 
   const takeProfit = parseSignalPrice(signal.takeProfit);
