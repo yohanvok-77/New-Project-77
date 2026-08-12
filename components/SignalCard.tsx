@@ -1,5 +1,5 @@
 import type { Signal } from "@/types/signal";
-import { getSignalStatusColor, getSignalStatusLabel } from "@/lib/signalLifecycle";
+import { getSignalStatusColor, getSignalStatusGlyph, getSignalStatusLabel } from "@/lib/signalLifecycle";
 import type { Language } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
 
@@ -13,8 +13,8 @@ interface SignalCardProps {
 }
 
 const directionStyles = {
-  BUY: "border-success/30 bg-success/15 text-success",
-  SELL: "border-danger/30 bg-danger/15 text-danger",
+  BUY: "border-blue/30 bg-blue/15 text-blue",
+  SELL: "border-violet/30 bg-violet/15 text-violet",
 };
 
 export function SignalCard({ signal, selected, highlighted = false, index, onSelect, language }: SignalCardProps) {
@@ -44,15 +44,16 @@ export function SignalCard({ signal, selected, highlighted = false, index, onSel
       <span className="relative flex items-start justify-between gap-4">
         <span className="min-w-0">
           <span className="block text-sm font-semibold text-muted">{t.pair}</span>
-          <span className="mt-2 block break-words text-2xl font-black tracking-normal text-text">
+          <h3 className="mt-2 break-words text-2xl font-black tracking-normal text-text">
             {signal.pair}
-          </span>
+          </h3>
         </span>
         <span
-          className={`rounded-full border px-3 py-1 text-xs font-black ${getSignalStatusColor(
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-black ${getSignalStatusColor(
             signal.status,
           )}`}
         >
+          <span aria-hidden="true">{getSignalStatusGlyph(signal.status)}</span>
           {getSignalStatusLabel(signal.status, language)}
         </span>
       </span>
@@ -69,10 +70,15 @@ export function SignalCard({ signal, selected, highlighted = false, index, onSel
         </span>
       </span>
 
-      <span className="relative mt-6 block h-1.5 overflow-hidden rounded-full bg-white/10">
+      <span
+        className="relative mt-6 block h-1.5 overflow-hidden rounded-full bg-white/10"
+        role="img"
+        aria-label={`Winrate ${signal.winrate}%`}
+      >
         <span
           className="block h-full rounded-full bg-gradient-to-r from-blue via-success to-gold"
           style={{ width: `${signal.winrate}%` }}
+          aria-hidden="true"
         />
       </span>
 
