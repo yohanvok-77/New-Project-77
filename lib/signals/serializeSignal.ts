@@ -42,6 +42,7 @@ export function serializeSignal(signal: PrismaSignal, language: Language): Signa
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "Europe/Moscow",
     }).format(signal.publishedAt),
     expiresAt: signal.expiresAt.toISOString(),
     activatedAt: signal.activatedAt?.toISOString() || null,
