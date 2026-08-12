@@ -147,6 +147,16 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
     return () => window.clearInterval(interval);
   }, [soundEnabled]);
 
+  useEffect(() => {
+    if (!newSignalNotice) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setNewSignalNotice(null), 6000);
+
+    return () => window.clearTimeout(timeout);
+  }, [newSignalNotice]);
+
   const sourceFilteredSignals = useMemo(() => {
     if (activeSourceName === "all") {
       return liveSignals;
@@ -201,7 +211,7 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] px-3 py-1.5 text-sm font-bold text-blue backdrop-blur-xl">
                 <span className="h-2 w-2 rounded-full bg-success shadow-[0_0_16px_rgba(34,197,94,0.8)]" />
-                Live dashboard
+                {t.liveDashboard}
               </div>
               <h2 className="mt-2 text-3xl font-black tracking-normal text-text sm:text-4xl">
                 {t.dashboardMap}
@@ -218,31 +228,11 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
                     : "border-white/12 bg-white/10 text-muted hover:text-text",
                 ].join(" ")}
               >
-                {soundEnabled ? "Звук включен" : "Включить звук"}
+                {soundEnabled ? t.soundOn : t.soundOff}
               </button>
               <FilterBar activeFilter={activeFilter} onFilterChange={setActiveFilter} language={language} />
             </div>
           </div>
-
-          {newSignalNotice ? (
-            <div className="glass-panel rounded-3xl border-success/30 bg-success/10 p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm font-black uppercase tracking-normal text-success">Новый сигнал</p>
-                  <p className="mt-1 text-lg font-black text-text">
-                    {newSignalNotice.pair} · {newSignalNotice.direction} · Winrate {newSignalNotice.winrate}%
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setNewSignalNotice(null)}
-                  className="rounded-full border border-white/12 bg-white/10 px-4 py-2 text-sm font-black text-muted transition hover:text-text"
-                >
-                  Закрыть
-                </button>
-              </div>
-            </div>
-          ) : null}
 
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {filteredSignals.map((signal, index) => (
@@ -261,10 +251,10 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
           {filteredSignals.length === 0 ? (
             <div className="glass-panel rounded-3xl p-10 text-center">
               <p className="text-lg font-black text-text">
-                {liveSignals.length === 0 ? "Сигналы пока не поступили" : "По этому фильтру сигналов нет"}
+                {liveSignals.length === 0 ? t.noSignalsYet : t.noSignalsForFilter}
               </p>
               <p className="mt-2 text-sm leading-6 text-muted">
-                Новые идеи появятся здесь автоматически после импорта из Telegram.
+                {t.noSignalsHint}
               </p>
             </div>
           ) : null}
@@ -276,6 +266,31 @@ export function Dashboard({ currentUser, language, signals }: DashboardProps) {
       </div>
 
       <SignalDetailsPanel signal={selectedSignal} onClose={() => setSelectedSignal(null)} language={language} />
+
+      {newSignalNotice ? (
+        <div className="fixed inset-x-4 top-4 z-[60] flex justify-center sm:inset-x-auto sm:right-6 sm:justify-end">
+          <div className="glass-panel w-full max-w-sm animate-sheetIn rounded-2xl border-success/30 bg-success/10 p-4 shadow-glass">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase tracking-normal text-success">
+                  {t.newSignalBadge}
+                </p>
+                <p className="mt-1 truncate text-base font-black text-text">
+                  {newSignalNotice.pair} · {newSignalNotice.direction} · Winrate {newSignalNotice.winrate}%
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNewSignalNotice(null)}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/12 bg-white/10 text-lg text-muted transition hover:text-text"
+                aria-label={t.close}
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
