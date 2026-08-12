@@ -358,44 +358,41 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
 
         <div className="flex flex-1 flex-col divide-y divide-white/10">
           {tradeStats ? (
-            <div className="shrink-0 space-y-3 p-4">
-              <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-5 py-4">
+            <div className="shrink-0 space-y-2 p-3 sm:p-4">
+              <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3">
                 <p className="text-xs font-black uppercase tracking-normal text-muted">
                   {t.riskReward}
                 </p>
-                <p className="text-2xl font-black text-gold sm:text-3xl">
+                <p className="text-xl font-black text-gold sm:text-2xl">
                   1&nbsp;:&nbsp;{tradeStats.ratio.toFixed(1)}
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5">
                   <p className="text-xs font-black uppercase tracking-normal text-success">
                     {t.pipsToTakeProfit}
                   </p>
-                  <p className="mt-1 text-xl font-black text-text">{tradeStats.rewardPips}</p>
+                  <p className="mt-0.5 text-lg font-black text-text">{tradeStats.rewardPips}</p>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5">
                   <p className="text-xs font-black uppercase tracking-normal text-danger">
                     {t.pipsToStopLoss}
                   </p>
-                  <p className="mt-1 text-xl font-black text-text">{tradeStats.riskPips}</p>
+                  <p className="mt-0.5 text-lg font-black text-text">{tradeStats.riskPips}</p>
                 </div>
               </div>
             </div>
           ) : null}
 
-          <div className="shrink-0 p-4 sm:p-5">
+          <div className="shrink-0 p-3 sm:p-4">
             {algorithmScenario ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
                   <p className="text-sm font-black uppercase tracking-normal text-text">
                     {algorithmScenario.title}
                   </p>
-                  <p className="mt-2 text-sm font-bold leading-relaxed text-text sm:text-base">
-                    {algorithmScenario.intro}
-                  </p>
-                  <p className="mt-1 text-sm font-bold leading-relaxed text-muted sm:text-base">
-                    {algorithmScenario.stopLine}
+                  <p className="mt-2 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-sm font-bold leading-relaxed text-text">
+                    {algorithmScenario.intro} {algorithmScenario.stopLine}
                   </p>
 
                   <div className="mt-3 space-y-2">
@@ -404,7 +401,7 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
                         {algorithmScenario.rows.map((row) => (
                           <p
                             key={row.order}
-                            className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 text-sm font-bold leading-relaxed text-text"
+                            className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5 text-sm font-bold leading-relaxed text-text"
                           >
                             {algorithmScenario.rowPrefix}{" "}
                             <span className="text-blue">{row.entry}</span>, {algorithmScenario.rowMiddle}{" "}
@@ -418,21 +415,21 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
                         ) : null}
                       </>
                     ) : (
-                      <p className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm font-bold leading-relaxed text-danger">
+                      <p className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-2.5 text-sm font-bold leading-relaxed text-danger">
                         {algorithmScenario.empty}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5">
                     <p className="text-xs font-black uppercase tracking-normal text-muted">
                       {algorithmScenario.stepLabel}
                     </p>
                     <p className="mt-1 text-lg font-black text-blue">{algorithmScenario.stepValue}</p>
                   </div>
-                  <div className="rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3">
+                  <div className="rounded-2xl border border-danger/25 bg-danger/10 px-4 py-2.5">
                     <p className="text-xs font-black uppercase tracking-normal text-danger">
                       {algorithmScenario.stopLabel}
                     </p>
