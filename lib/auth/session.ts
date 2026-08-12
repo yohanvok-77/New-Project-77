@@ -11,8 +11,21 @@ export interface SessionPayload {
 
 const encoder = new TextEncoder();
 
+const DEV_FALLBACK_SECRET = "dev-secret-change-me-for-production-32-chars";
+
 function getSessionSecret() {
-  const secret = process.env.AUTH_SECRET || process.env.SESSION_SECRET || "dev-secret-change-me-for-production-32-chars";
+  const secret = process.env.AUTH_SECRET || process.env.SESSION_SECRET;
+
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "AUTH_SECRET (or SESSION_SECRET) must be set in production. Refusing to sign sessions with a public default secret.",
+      );
+    }
+
+    return encoder.encode(DEV_FALLBACK_SECRET);
+  }
+
   return encoder.encode(secret);
 }
 
