@@ -14,6 +14,7 @@ const config: Config = {
         text: "#F9FAFB",
         muted: "#9CA3AF",
         blue: "#3B82F6",
+        violet: "#8B5CF6",
         success: "#22C55E",
         gold: "#F59E0B",
         danger: "#EF4444",
