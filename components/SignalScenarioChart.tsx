@@ -1,6 +1,7 @@
 import type { Signal } from "@/types/signal";
 import type { Language } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
+import { getAlgorithmPipSize } from "@/lib/signals/algorithmScenario";
 
 interface SignalScenarioChartProps {
   signal: Signal;
@@ -15,20 +16,6 @@ interface ChartPoint {
   color: string;
 }
 
-function getPipSize(pair: string, entry: string) {
-  const decimals = (entry.split(".")[1] || "").length;
-
-  if (pair.toUpperCase().includes("JPY")) {
-    return 0.01;
-  }
-
-  if (decimals <= 3) {
-    return 0.01;
-  }
-
-  return 0.0001;
-}
-
 function computeTradeStats(signal: Signal) {
   const entry = Number.parseFloat(signal.entry);
   const stopLoss = Number.parseFloat(signal.stopLoss);
@@ -38,7 +25,7 @@ function computeTradeStats(signal: Signal) {
     return null;
   }
 
-  const pipSize = getPipSize(signal.pair, signal.entry);
+  const pipSize = getAlgorithmPipSize(signal.pair, entry);
   const riskDistance = Math.abs(entry - stopLoss);
   const rewardDistance = Math.abs(takeProfit - entry);
 
