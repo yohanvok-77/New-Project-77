@@ -104,7 +104,7 @@ function normalizeStepPoints(symbol: string, stepPoints: number) {
   }
 
   if (normalized.includes("XAG")) {
-    return stepPoints * 10;
+    return stepPoints >= 1000 ? stepPoints : stepPoints * 10;
   }
 
   return stepPoints;
