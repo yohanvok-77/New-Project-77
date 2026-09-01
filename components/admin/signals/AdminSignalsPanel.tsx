@@ -41,7 +41,21 @@ export type AdminSignalRow = {
   events: AdminSignalEvent[];
 };
 
-type SignalFilter = "all" | "open" | "closed" | "inactive";
+type SignalFilter = "all" | "open" | "closed" | "inactive" | "stale";
+
+const staleThresholdMs = 10 * 60 * 1000; // 10 minutes — a comfortable margin above the 60s quote max-age
+
+function isSignalStale(signal: AdminSignalRow, now: number) {
+  if (signal.status !== "PENDING" && signal.status !== "ACTIVE") {
+    return false;
+  }
+
+  if (!signal.lastCheckedAt) {
+    return true;
+  }
+
+  return now - new Date(signal.lastCheckedAt).getTime() > staleThresholdMs;
+}
 
 const text = {
   ru: {
@@ -50,6 +64,7 @@ const text = {
     open: "В работе",
     closed: "Закрытые",
     inactive: "Неактуальные",
+    stale: "Зависшие",
     empty: "Сигналы пока не найдены.",
     marketSnapshot: "Рынок",
     lifecycle: "Жизненный цикл",
@@ -79,6 +94,12 @@ const text = {
     importTitle: "Импорт Telegram-сигнала",
     importPlaceholder: "Вставьте текст сигнала из Telegram",
     importButton: "Импортировать",
+    staleBannerTitle: "Нет свежей цены",
+    staleBannerBody: (count: number, pairs: string) =>
+      `${count} ${count === 1 ? "сигнал" : count < 5 ? "сигнала" : "сигналов"} не получают котировку и не могут закрыться сами: ${pairs}. Проверьте, что скрипт с терминала шлёт цены по этим символам.`,
+    staleBadge: "Нет цены",
+    staleSince: "Нет цены с",
+    staleNever: "Ни разу не проверялся",
   },
   en: {
     search: "Search by pair",
@@ -86,6 +107,7 @@ const text = {
     open: "Open",
     closed: "Closed",
     inactive: "Inactive",
+    stale: "Stale",
     empty: "No signals found yet.",
     marketSnapshot: "Market",
     lifecycle: "Lifecycle",
@@ -115,6 +137,12 @@ const text = {
     importTitle: "Import Telegram signal",
     importPlaceholder: "Paste Telegram signal text here",
     importButton: "Import signal",
+    staleBannerTitle: "No fresh price",
+    staleBannerBody: (count: number, pairs: string) =>
+      `${count} signal${count === 1 ? "" : "s"} aren't receiving a price and can't close on their own: ${pairs}. Check that the terminal script is pushing quotes for these symbols.`,
+    staleBadge: "No price",
+    staleSince: "No price since",
+    staleNever: "Never checked",
   },
 } as const;
 
@@ -234,7 +262,18 @@ export function AdminSignalsPanel({ signals, language }: { signals: AdminSignalR
     { value: "open", label: t.open },
     { value: "closed", label: t.closed },
     { value: "inactive", label: t.inactive },
+    { value: "stale", label: t.stale },
   ];
+
+  const now = Date.now();
+  const staleSignals = useMemo(
+    () => signals.filter((signal) => isSignalStale(signal, now)),
+    [signals, now],
+  );
+  const stalePairs = useMemo(
+    () => Array.from(new Set(staleSignals.map((signal) => signal.pair))),
+    [staleSignals],
+  );
 
   const filteredSignals = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -245,11 +284,12 @@ export function AdminSignalsPanel({ signals, language }: { signals: AdminSignalR
         filter === "all" ||
         (filter === "open" && ["PENDING", "ACTIVE"].includes(signal.status)) ||
         (filter === "closed" && ["CLOSED_TP", "CLOSED_SL"].includes(signal.status)) ||
-        (filter === "inactive" && ["EXPIRED", "CANCELLED"].includes(signal.status));
+        (filter === "inactive" && ["EXPIRED", "CANCELLED"].includes(signal.status)) ||
+        (filter === "stale" && isSignalStale(signal, now));
 
       return matchesQuery && matchesFilter;
     });
-  }, [filter, query, signals]);
+  }, [filter, query, signals, now]);
 
   function importSignal() {
     setImportError(null);
@@ -293,6 +333,22 @@ export function AdminSignalsPanel({ signals, language }: { signals: AdminSignalR
         </div>
         {importError ? <p className="mt-2 text-sm font-bold text-danger">{importError}</p> : null}
       </div>
+
+      {staleSignals.length > 0 ? (
+        <div className="glass-panel rounded-3xl border-gold/35 bg-gold/10 p-4">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-gold/40 bg-gold/15 text-gold">
+              !
+            </span>
+            <div>
+              <p className="text-sm font-black uppercase tracking-normal text-gold">{t.staleBannerTitle}</p>
+              <p className="mt-1 text-sm font-semibold leading-relaxed text-text">
+                {t.staleBannerBody(staleSignals.length, stalePairs.join(", "))}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <div className="glass-panel rounded-3xl p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -343,6 +399,11 @@ export function AdminSignalsPanel({ signals, language }: { signals: AdminSignalR
                     {language === "ru" ? "Не в статистике" : "Excluded from stats"}
                   </span>
                 ) : null}
+                {isSignalStale(signal, now) ? (
+                  <span className="rounded-full border border-danger/35 bg-danger/15 px-3 py-1 text-xs font-black text-danger">
+                    {t.staleBadge}
+                  </span>
+                ) : null}
               </div>
               <h2 className="mt-4 text-3xl font-black tracking-normal">{signal.pair}</h2>
               <p className="mt-2 inline-flex rounded-full border border-blue/25 bg-blue/10 px-3 py-1 text-xs font-black text-blue">
@@ -370,7 +431,11 @@ export function AdminSignalsPanel({ signals, language }: { signals: AdminSignalR
                 <DetailRow label={t.lastMarketPrice} value={signal.lastMarketPrice} />
                 <DetailRow label={t.lastBid} value={signal.lastBid} accent="text-blue" />
                 <DetailRow label={t.lastAsk} value={signal.lastAsk} accent="text-gold" />
-                <DetailRow label={t.lastCheckedAt} value={formatDateTime(signal.lastCheckedAt, language)} />
+                <DetailRow
+                  label={t.lastCheckedAt}
+                  value={signal.lastCheckedAt ? formatDateTime(signal.lastCheckedAt, language) : t.staleNever}
+                  accent={isSignalStale(signal, now) ? "text-danger" : undefined}
+                />
               </div>
 
               <p className="mb-3 mt-5 text-xs font-black uppercase tracking-normal text-muted">{t.lifecycle}</p>
