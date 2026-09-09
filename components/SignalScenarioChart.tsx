@@ -65,7 +65,7 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
       ];
 
   return (
-    <section className="rounded-3xl border border-white/12 bg-white/[0.045] p-4 shadow-gold lg:flex lg:min-h-full lg:flex-col">
+    <section className="rounded-3xl border border-white/12 bg-white/[0.045] p-3 shadow-gold lg:flex lg:min-h-full lg:flex-col">
       <div>
         <div>
           <p className="text-sm font-black uppercase tracking-normal text-text">
@@ -77,14 +77,14 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
         </div>
       </div>
 
-      <div className="relative mt-4 flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#080B12]/80 lg:flex-1">
+      <div className="relative mt-3 flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#080B12]/80 lg:flex-1">
         {signal.algorithmImageUrl ? (
-          <div className="relative z-10 flex w-full shrink-0 items-center justify-center bg-[#080B12] p-2.5 sm:p-3 lg:flex-1">
-            <div className="flex max-h-[420px] w-full items-center justify-center overflow-hidden rounded-2xl bg-white">
+          <div className="relative z-10 flex w-full shrink-0 items-center justify-center bg-[#080B12] p-2 sm:p-2.5 lg:flex-1">
+            <div className="flex max-h-[340px] w-full items-center justify-center overflow-hidden rounded-2xl bg-white sm:max-h-[380px]">
               <img
                 src={signal.algorithmImageUrl}
                 alt={signal.algorithmName || `${signal.pair} algorithm chart`}
-                className="max-h-[420px] w-full object-contain"
+                className="max-h-[340px] w-full object-contain sm:max-h-[380px]"
                 onError={(event) => {
                   const image = event.currentTarget;
 
@@ -198,23 +198,23 @@ export function SignalScenarioChart({ signal, language }: SignalScenarioChartPro
         )}
 
         {tradeStats ? (
-          <div className="shrink-0 space-y-2 border-t border-white/10 p-3 sm:p-4">
-            <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3">
+          <div className="shrink-0 space-y-2 border-t border-white/10 p-2.5 sm:p-3">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
               <p className="text-xs font-black uppercase tracking-normal text-muted">
                 {t.riskReward}
               </p>
-              <p className="text-xl font-black text-gold sm:text-2xl">
+                <p className="text-lg font-black text-gold sm:text-xl">
                 1&nbsp;:&nbsp;{tradeStats.ratio.toFixed(1)}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
                 <p className="text-xs font-black uppercase tracking-normal text-success">
                   {t.pipsToTakeProfit}
                 </p>
                 <p className="mt-0.5 text-lg font-black text-text">{tradeStats.rewardPips}</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-2.5">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-3 py-2">
                 <p className="text-xs font-black uppercase tracking-normal text-danger">
                   {t.pipsToStopLoss}
                 </p>
