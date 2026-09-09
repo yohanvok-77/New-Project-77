@@ -11,7 +11,7 @@ function getPriceDecimals(value: string) {
   return Math.min(Math.max(decimalPart?.length ?? 5, 2), 6);
 }
 
-function getAlgorithmPipSize(symbol: string, entry: number) {
+export function getAlgorithmPipSize(symbol: string, entry: number) {
   const normalized = symbol.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
   if (normalized.includes("XAU")) {
