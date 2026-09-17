@@ -11,6 +11,62 @@ type ProcessResult = {
 };
 
 const terminalStatuses: SignalStatus[] = ["CLOSED_TP", "CLOSED_SL", "EXPIRED", "CANCELLED"];
+const pendingLifetimeMs = 48 * 60 * 60 * 1000;
+const activeLifetimeMs = 7 * 24 * 60 * 60 * 1000;
+
+export async function expireStaleSignals(now = new Date()) {
+  const pendingBefore = new Date(now.getTime() - pendingLifetimeMs);
+  const activeBefore = new Date(now.getTime() - activeLifetimeMs);
+
+  const staleSignals = await prisma.signal.findMany({
+    where: {
+      OR: [
+        {
+          status: "PENDING",
+          publishedAt: { lt: pendingBefore },
+        },
+        {
+          status: "ACTIVE",
+          activatedAt: { lt: activeBefore },
+        },
+      ],
+    },
+    select: { id: true, status: true },
+  });
+
+  if (staleSignals.length === 0) {
+    return 0;
+  }
+
+  await prisma.$transaction(async (tx) => {
+    for (const signal of staleSignals) {
+      const closeReason =
+        signal.status === "PENDING" ? "expired_waiting_entry" : "expired_stale_active";
+
+      await tx.signal.update({
+        where: { id: signal.id },
+        data: {
+          status: "EXPIRED",
+          closedAt: now,
+          closeReason,
+        },
+      });
+
+      await tx.signalEvent.create({
+        data: {
+          signalId: signal.id,
+          type: "EXPIRED",
+          message:
+            signal.status === "PENDING"
+              ? "Signal expired after 48 hours without reaching entry."
+              : "Signal expired after 7 days in active status.",
+        },
+      });
+    }
+  });
+
+  return staleSignals.length;
+}
 
 function toNumber(value: unknown) {
   return Number(value?.toString());
