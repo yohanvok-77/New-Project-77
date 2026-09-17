@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { getPrices } from "../lib/market-data";
-import { processSignalWithPrice } from "../lib/signals/process-signal-with-price";
+import { expireStaleSignals, processSignalWithPrice } from "../lib/signals/process-signal-with-price";
 
 const intervalMs = 10_000;
 let isRunning = false;
@@ -15,6 +15,12 @@ async function runMarketCheck() {
   const startedAt = Date.now();
 
   try {
+    const expiredCount = await expireStaleSignals();
+
+    if (expiredCount > 0) {
+      console.log(`[market-watcher] expired stale signals=${expiredCount}.`);
+    }
+
     const signals = await prisma.signal.findMany({
       where: {
         status: {
