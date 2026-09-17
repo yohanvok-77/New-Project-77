@@ -32,7 +32,7 @@ export type TelegramSignalParserOptions = {
   sourceName?: string;
 };
 
-const defaultExpiresInHours = 24;
+const defaultExpiresInHours = 48;
 const defaultWinrate = 70;
 const defaultSourceName = "E+R Range";
 const xauXagSourceName = "XAU/XAG Range";
